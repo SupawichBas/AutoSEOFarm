@@ -5,6 +5,8 @@ import os
 import sys
 import markdown
 
+from scheduler_helper import format_thai_date, parse_datetime
+
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -316,6 +318,9 @@ def build_article_page(art, config):
     # แปลง Markdown เป็น HTML
     body_html = markdown.markdown(art["content_markdown"], extensions=['extra'])
 
+    thai_pub_date = format_thai_date(art.get('created_at') or art.get('date_iso'))
+    pub_iso = art.get("date_iso") or art.get("created_at")
+
     # JSON-LD Schema สำหรับ Google Search
     schema_json = {
         "@context": "https://schema.org",
@@ -323,6 +328,8 @@ def build_article_page(art, config):
         "name": art["product_title"],
         "image": art["image"],
         "description": art["summary"],
+        "datePublished": pub_iso,
+        "dateModified": pub_iso,
         "offers": {
             "@type": "Offer",
             "price": art["price"],
@@ -371,7 +378,7 @@ def build_article_page(art, config):
   <main class="container">
     <article class="article-wrap">
       <div class="article-meta">
-        <span>โพสต์เมื่อ: {art['created_at']}</span> • 
+        <span>📅 เผยแพร่เมื่อ: {thai_pub_date}</span> • 
         <span>หมวดหมู่: {html.escape(art['category'])}</span> • 
         <span>ขายแล้วกว่า: {art['sold']} ชิ้น</span>
       </div>
@@ -436,15 +443,19 @@ def build_index_page(articles, config):
 
     for art in sorted_articles:
         img_src = art.get("image") or "https://via.placeholder.com/400x300?text=Shopee+Review"
+        thai_date_card = format_thai_date(art.get('created_at') or art.get('date_iso'), short=True)
         card = f"""
       <div class="card">
         <div class="card-img-wrap">
           <img src="{img_src}" alt="{html.escape(art['product_title'])}" class="card-img" loading="lazy">
         </div>
         <div class="card-body">
-          <span class="badge">{html.escape(art['category'])}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span class="badge">{html.escape(art['category'])}</span>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">📅 {thai_date_card}</span>
+          </div>
           <h2 class="card-title">
-            <a href="articles/{art['slug']}.html">{html.escape(art['product_title'])}</a>
+            <a href="articles/{art['slug']}.html">{html.escape(art['article_title'])}</a>
           </h2>
           <div class="card-price">฿{art['price']} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(ขายแล้ว {art['sold']} ชิ้น)</span></div>
           <a href="articles/{art['slug']}.html" class="btn">อ่านรีวิวและสั่งซื้อ</a>
@@ -508,10 +519,11 @@ def build_sitemap_and_robots(articles, config):
     ]
 
     for art in articles:
+        art_date = (art.get('created_at') or '')[:10] or now_date
         art_url = f"{site_url}/articles/{art['slug']}.html"
         urls.append(f"""  <url>
     <loc>{art_url}</loc>
-    <lastmod>{now_date}</lastmod>
+    <lastmod>{art_date}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>""")

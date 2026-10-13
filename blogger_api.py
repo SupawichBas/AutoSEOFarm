@@ -78,6 +78,8 @@ def publish_to_blogger(article, blog_id=None, service=None):
     else:
         import markdown
         body_content = markdown.markdown(article['content_markdown'], extensions=['extra'])
+        
+    from scheduler_helper import to_rfc3339_utc
 
     post_body = {
         'title': article['article_title'],
@@ -86,6 +88,9 @@ def publish_to_blogger(article, blog_id=None, service=None):
     }
     if article.get('image'):
         post_body['images'] = [{'url': article['image']}]
+    
+    if article.get('created_at') or article.get('date_iso'):
+        post_body['published'] = to_rfc3339_utc(article.get('created_at') or article.get('date_iso'))
 
 
     try:

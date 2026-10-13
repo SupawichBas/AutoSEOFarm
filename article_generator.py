@@ -42,8 +42,12 @@ ANGLES = [
     }
 ]
 
-def generate_seo_article(product, ollama_url="http://localhost:11434/api/generate", model_name="qwen2.5"):
-    """ใช้ Qwen2.5 เขียนบทความ SEO คุณภาพสูงด้วยมุมมองและสำนวนที่หลากหลาย ไม่ซ้ำซาก"""
+import random
+import time
+from scheduler_helper import parse_datetime, to_iso_local
+
+def generate_seo_article(product, ollama_url="http://localhost:11434/api/generate", model_name="qwen2.5", publish_time=None):
+    """ใช้ Qwen2.5 เขียนบทความ SEO คุณภาพสูงด้วยมุมมองและสำนวนที่หลากหลาย พร้อมฝังเวลาปล่อยบทความ (Schedule)"""
     title = product["title"]
     price = product["price"]
     sold = product["sold"]
@@ -136,6 +140,15 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
 
             slug = clean_slug(title, product["id"])
 
+            # จัดการวันเวลาเผยแพร่บทความ (Timestamp & Schedule)
+            pub_dt = parse_datetime(publish_time) if publish_time else datetime.datetime.now()
+            created_at_str = pub_dt.strftime("%Y-%m-%d %H:%M:%S")
+            date_iso_str = to_iso_local(pub_dt)
+
+            # ฝังเวลาในตัวเนื้อหา Markdown
+            embedded_header = f"<!-- Scheduled: {created_at_str} | Category: {category} | ID: {product['id']} -->\n\n"
+            final_content = embedded_header + content
+
             return {
                 "id": product["id"],
                 "product_title": title,
@@ -146,10 +159,10 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
                 "category": category,
                 "image": image_url,
                 "affiliate_link": affiliate_link,
-                "content_markdown": content,
+                "content_markdown": final_content,
                 "summary": summary,
-                "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "date_iso": datetime.datetime.now().isoformat()
+                "created_at": created_at_str,
+                "date_iso": date_iso_str
             }
         else:
             print(f"[!] Ollama HTTP Error: {res.status_code}")

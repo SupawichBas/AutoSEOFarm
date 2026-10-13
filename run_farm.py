@@ -6,8 +6,9 @@ import time
 
 from feed_manager import get_next_products
 from article_generator import generate_seo_article
-from site_builder import update_website
+from site_builder import update_website, load_site_articles
 from blogger_exporter import export_to_blogger_format
+from scheduler_helper import get_next_schedule_slots, get_latest_article_datetime, format_thai_date
 
 # บังคับ UTF-8 สำหรับ Windows Terminal
 if sys.platform == "win32":
@@ -108,15 +109,23 @@ def main():
 
     new_articles = []
 
-    # 2. ให้ Qwen2.5 สร้างบทความ SEO
+    # คำนวณช่วงเวลาปล่อยบทความแบบ Drip-feed กระจายเวลาอัตโนมัติ
+    existing_articles = load_site_articles()
+    latest_dt = get_latest_article_datetime(existing_articles)
+    schedule_slots = get_next_schedule_slots(count=len(products), start_after=latest_dt)
+
+    # 2. ให้ Qwen2.5 สร้างบทความ SEO พร้อมฝังวันเวลาเผยแพร่
     for idx, prod in enumerate(products, 1):
+        slot_time = schedule_slots[idx - 1]
         print(f"\n[{idx}/{len(products)}] กำลังเขียนบทความ: {prod['title'][:50]}... (฿{prod['price']})")
+        print(f"    📅 เวลาปล่อยบทความ: {slot_time.strftime('%Y-%m-%d %H:%M')} ({format_thai_date(slot_time)})")
         start_t = time.time()
         
         art = generate_seo_article(
             product=prod,
             ollama_url=config.get("ollama_url", "http://localhost:11434/api/generate"),
-            model_name=config.get("model_name", "qwen2.5")
+            model_name=config.get("model_name", "qwen2.5"),
+            publish_time=slot_time
         )
         
         if art:

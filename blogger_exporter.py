@@ -5,6 +5,7 @@ import re
 import sys
 import markdown
 
+from scheduler_helper import to_rfc3339_utc, format_thai_date
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -14,7 +15,7 @@ if sys.platform == "win32":
 BLOGGER_DIR = "blogger_posts"
 
 def export_to_blogger_format(articles):
-    """บันทึกไฟล์บทความให้อยู่ในฟอร์แมตที่พร้อมนำเข้า Blogger"""
+    """บันทึกไฟล์บทความให้อยู่ในฟอร์แมตที่พร้อมนำเข้า Blogger พร้อมฝังเวลาปล่อยบทความ"""
     os.makedirs(BLOGGER_DIR, exist_ok=True)
     exported_files = []
 
@@ -23,9 +24,11 @@ def export_to_blogger_format(articles):
         clean_md = re.sub(r'!\[.*?\]\(.*?\)', '', art["content_markdown"])
         body_html = markdown.markdown(clean_md, extensions=['extra'])
         img_url = art.get("image") or ""
+        created_time = art.get("created_at") or ""
         
         blogger_html = f"""<!-- 
 หัวข้อบทความ (Post Title): {art['article_title']}
+กำหนดเวลาเผยแพร่ (Scheduled Time): {created_time} ({format_thai_date(created_time)})
 ป้ายกำกับ (Labels / Tags): {art['category']}, Shopee, รีวิวสินค้า
 ลิงก์ภาพหน้าปก: {img_url}
 -->
@@ -87,11 +90,14 @@ def generate_blogger_xml(articles_with_html):
         escaped_title = html.escape(art["article_title"])
         escaped_cat = html.escape(art["category"])
         img_url = art.get("image", "")
+        
+        # วันเวลาเผยแพร่ของแต่ละบทความ
+        art_published = to_rfc3339_utc(art.get("created_at") or art.get("date_iso"))
 
         entry = f"""  <entry>
     <id>tag:blogger.com,1999:blog-0.post-{art['id']}</id>
-    <published>{now_iso}</published>
-    <updated>{now_iso}</updated>
+    <published>{art_published}</published>
+    <updated>{art_published}</updated>
     <title type='text'>{escaped_title}</title>
     <content type='html'>{escaped_content}</content>
     <media:thumbnail xmlns:media='http://search.yahoo.com/mrss/' url='{img_url}' height='400' width='400'/>
