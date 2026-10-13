@@ -1,0 +1,17 @@
+{
+  "ollama_url": "http://localhost:11434/api/generate",
+  "model_name": "qwen2.5",
+  "batch_size": 3,
+  "min_sold": 5,
+  "target_categories": [
+    "Computers & Accessories",
+    "Automobiles",
+    "Mobile & Gadgets",
+    "Home Appliances",
+    "Audio"
+  ],
+  "site_title": "Shopee Tech & Auto Review",
+  "site_description": "ศูนย์รวมรีวิวสินค้าไอที จัดโต๊ะคอม อุปกรณ์แต่งรถ และแกดเจ็ตยอดนิยม คุ้มค่าน่าซื้อ",
+  "site_url": "https://username.github.io/ShopeeAutoSEOFarm",
+  "auto_git_push": false
+}
