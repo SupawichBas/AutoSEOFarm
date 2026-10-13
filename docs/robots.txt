@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://username.github.io/ShopeeAutoSEOFarm/sitemap.xml
+Sitemap: https://supawichbas.github.io/ShopeeAutoSEOFarm/sitemap.xml
