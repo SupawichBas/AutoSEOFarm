@@ -14,6 +14,8 @@
   "site_title": "TechAuto Guide",
   "site_subtitle": "ศูนย์รวมรีวิวไอที แกดเจ็ต และของแต่งรถยอดนิยม",
   "site_description": "รีวิวเจาะลึกสินค้าไอที แกดเจ็ต จัดโต๊ะคอม และอุปกรณ์แต่งรถยอดนิยม คัดเฉพาะของดีมีคุณภาพ สรุปจบในที่เดียว",
-  "site_url": "https://supawichbas.github.io/ShopeeAutoSEOFarm",
+  "site_url": "https://tautoguide.blogspot.com",
+  "github_pages_url": "https://supawichbas.github.io/ShopeeAutoSEOFarm",
+  "primary_platform": "blogger",
   "auto_git_push": true
 }

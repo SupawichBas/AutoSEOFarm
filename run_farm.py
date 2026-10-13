@@ -160,10 +160,15 @@ def main():
             b_blog = get_target_blog(b_service)
             success_blogger = 0
             for art in new_articles:
-                res_url = publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
-                if res_url:
-                    success_blogger += 1
-                time.sleep(1.5)
+                res_url = None
+                for attempt in range(2):
+                    res_url = publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
+                    if res_url:
+                        success_blogger += 1
+                        break
+                    print("    [!] รอ 10 วินาทีเพื่อลองส่งขึ้น Blogger ใหม่อีกครั้ง...")
+                    time.sleep(10)
+                time.sleep(3.5)
             print(f"[*] โพสต์ขึ้น Blogger เรียบร้อยทั้งหมด {success_blogger}/{len(new_articles)} บทความ")
         except Exception as e:
             print(f"[!] Blogger Auto-Post notice: {e}")

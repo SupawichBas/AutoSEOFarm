@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://supawichbas.github.io/ShopeeAutoSEOFarm/sitemap.xml
+Sitemap: https://tautoguide.blogspot.com/sitemap.xml

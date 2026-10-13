@@ -478,7 +478,9 @@ def build_index_page(articles, config):
   <header>
     <div class="header-container">
       <a href="index.html" class="logo">{html.escape(site_title)}</a>
-      <span style="font-size: 0.9rem; color: var(--text-muted);">อัปเดตบทความใหม่ทุกวัน</span>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="https://tautoguide.blogspot.com" target="_blank" style="font-size: 0.88rem; color: var(--primary); font-weight: 600; text-decoration: none; background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 เข้าชมบล็อกหลัก (tautoguide.blogspot.com) ↗</a>
+      </div>
     </div>
   </header>
 
