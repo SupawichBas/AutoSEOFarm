@@ -174,15 +174,57 @@ header {
 }
 .article-content p { margin-bottom: 1rem; }
 .article-content ul, .article-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+.trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+}
 .cta-box {
   background: #fff7ed;
   border: 2px dashed #f97316;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.75rem 1.25rem;
   margin-top: 2rem;
   text-align: center;
 }
-.cta-box h3 { color: #c2410c; margin-bottom: 0.5rem; }
+.cta-box h3 { color: #c2410c; margin-bottom: 0.5rem; font-size: 1.3rem; }
+.cta-buttons-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 480px;
+  margin: 1.25rem auto 0 auto;
+}
+.btn-voucher {
+  display: inline-block;
+  background: #f59e0b;
+  color: #78350f !important;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+.btn-voucher:hover { opacity: 0.9; }
+/* Mobile Sticky Bottom CTA */
+.sticky-mobile-cta {
+  display: none;
+}
 footer {
   text-align: center;
   padding: 2rem;
@@ -192,10 +234,56 @@ footer {
   margin-top: 4rem;
   background: white;
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  body { padding-bottom: 75px; }
   .article-wrap { padding: 1.25rem; }
   .hero h1 { font-size: 1.6rem; }
+  .sticky-mobile-cta {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 0.65rem 1rem;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.12);
+    align-items: center;
+    justify-content: space-between;
+    z-index: 999;
+    border-top: 1px solid var(--border);
+  }
+  .sticky-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-right: 0.5rem;
+  }
+  .sticky-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .sticky-price {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .btn-sticky {
+    background: var(--primary);
+    color: white !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
+
 """
 
 def init_dirs():
@@ -292,21 +380,44 @@ def build_article_page(art, config):
         {body_html}
       </div>
 
+      <div class="trust-badges">
+        <div class="trust-badge-item">🛡️ ของแท้ 100%</div>
+        <div class="trust-badge-item">🚚 จัดส่งรวดเร็วทั่วไทย</div>
+        <div class="trust-badge-item">💳 มีเก็บเงินปลายทาง</div>
+        <div class="trust-badge-item">⚡ คุ้มค่า ราคาพิเศษ</div>
+      </div>
+
       <div class="cta-box">
-        <h3>🔥 สนใจสินค้านี้? เช็คโค้ดส่วนลดและราคาโปรล่าสุด</h3>
-        <p style="margin-bottom: 1rem; color: #7c2d12;">รับประกันของแท้ พร้อมโปรโมชั่นส่งฟรีจาก Shopee</p>
-        <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn" style="font-size: 1.1rem; padding: 0.85rem 2rem;">
-          🛒 สั่งซื้อสินค้าใน Shopee ทันที (คลิก)
-        </a>
+        <h3>🔥 เช็คราคาโปรโมชั่นและโค้ดลด Shopee ล่าสุด</h3>
+        <p style="margin-bottom: 0.5rem; color: #7c2d12;">ราคาพิเศษเพียง ฿{art['price']} • มียอดขายแล้วกว่า {art['sold']} ชิ้น</p>
+        <div class="cta-buttons-wrap">
+          <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn" style="font-size: 1.05rem; padding: 0.85rem 1.5rem;">
+            🛒 ดูราคาโปรโมชั่นล่าสุดใน Shopee (คลิก)
+          </a>
+          <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn-voucher">
+            🎟️ เก็บโค้ดลด Shopee & โค้ดส่งฟรีวันนี้
+          </a>
+        </div>
       </div>
     </article>
   </main>
+
+  <div class="sticky-mobile-cta">
+    <div class="sticky-info">
+      <span class="sticky-title">{html.escape(art['product_title'])}</span>
+      <span class="sticky-price">฿{art['price']}</span>
+    </div>
+    <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn-sticky">
+      🛒 สั่งซื้อเลย
+    </a>
+  </div>
 
   <footer>
     <p>© {datetime.date.today().year} {html.escape(site_title)} • เว็บไซต์รีวิวสินค้าแนะนำพร้อมลิงก์โปรโมชั่น</p>
   </footer>
 </body>
 </html>
+
 """
     file_path = os.path.join(ARTICLES_DIR, f"{art['slug']}.html")
     with open(file_path, "w", encoding="utf-8") as f:

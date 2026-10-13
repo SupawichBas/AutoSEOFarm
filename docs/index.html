@@ -166,15 +166,57 @@ header {
 }
 .article-content p { margin-bottom: 1rem; }
 .article-content ul, .article-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+.trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+}
 .cta-box {
   background: #fff7ed;
   border: 2px dashed #f97316;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.75rem 1.25rem;
   margin-top: 2rem;
   text-align: center;
 }
-.cta-box h3 { color: #c2410c; margin-bottom: 0.5rem; }
+.cta-box h3 { color: #c2410c; margin-bottom: 0.5rem; font-size: 1.3rem; }
+.cta-buttons-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 480px;
+  margin: 1.25rem auto 0 auto;
+}
+.btn-voucher {
+  display: inline-block;
+  background: #f59e0b;
+  color: #78350f !important;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+.btn-voucher:hover { opacity: 0.9; }
+/* Mobile Sticky Bottom CTA */
+.sticky-mobile-cta {
+  display: none;
+}
 footer {
   text-align: center;
   padding: 2rem;
@@ -184,10 +226,56 @@ footer {
   margin-top: 4rem;
   background: white;
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  body { padding-bottom: 75px; }
   .article-wrap { padding: 1.25rem; }
   .hero h1 { font-size: 1.6rem; }
+  .sticky-mobile-cta {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 0.65rem 1rem;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.12);
+    align-items: center;
+    justify-content: space-between;
+    z-index: 999;
+    border-top: 1px solid var(--border);
+  }
+  .sticky-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-right: 0.5rem;
+  }
+  .sticky-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .sticky-price {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .btn-sticky {
+    background: var(--primary);
+    color: white !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
+
 </style>
 </head>
 <body>
@@ -294,7 +382,7 @@ footer {
   </main>
 
   <footer>
-    <p>© 2026 Shopee Tech &amp; Auto Review • อัปเดตล่าสุด: 13/10/2026 18:28</p>
+    <p>© 2026 Shopee Tech &amp; Auto Review • อัปเดตล่าสุด: 13/10/2026 18:39</p>
   </footer>
 </body>
 </html>
