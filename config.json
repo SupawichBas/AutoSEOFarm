@@ -1,7 +1,7 @@
 {
   "ollama_url": "http://localhost:11434/api/generate",
   "model_name": "qwen2.5",
-  "batch_size": 6,
+  "batch_size": 50,
   "min_sold": 5,
   "min_price": 290,
   "target_categories": [
