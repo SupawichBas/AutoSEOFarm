@@ -58,33 +58,41 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
     sample_h1 = angle["headline_idea"].format(short_title=short_title, price=price)
 
     prompt = f"""
-คุณคือนักเขียนบล็อกรีวิวสินค้ามืออาชีพ สไตล์บทความมีความเป็นกันเอง สละสลวย อ่านเพลิน และน่าเชื่อถือ
-แนวทางการเขียนสำหรับบทความนี้: {angle['style']} ({angle['tone']})
+คุณคือนักเขียนบล็อกเกอร์รีวิวสินค้ามืออาชีพ ภาษาไทยสละสลวย เป็นกันเอง อ่านง่าย น่าเชื่อถือ
+แนวทางการเขียนบทความนี้: {angle['style']} ({angle['tone']})
 
-ข้อมูลสินค้าสำหรับรีวิว:
+ข้อมูลสินค้า:
 - ชื่อสินค้า: {title}
 - หมวดหมู่: {category}
-- ราคาประมาณ: {price} บาท (ยอดขายบน Shopee กว่า {sold} ชิ้น)
+- ราคาประมาณ: {price} บาท (ยอดขายกว่า {sold} ชิ้น)
 
-ข้อกำหนดโครงสร้างบทความ (Markdown):
-1. หัวข้อหลัก (H1): ตั้งหัวข้อให้น่าสนใจ สื่อถึงประโยชน์ชัดเจน (ตัวอย่างแนวคิด: '{sample_h1}')
-   *** ข้อห้ามเด็ดขาด: ห้ามใช้คำว่า "ดีจริงหรือหลอก?" หรือ "หลอกลวง" ในหัวข้อหรือเนื้อหาโดยเด็ดขาด! ***
-2. เกริ่นนำ (Introduction): เปิดเรื่องให้น่าติดตาม เล่าถึงความน่าสนใจและทำไมสินค้านี้ถึงเป็นที่พูดถึง
-3. เจาะลึกจุดเด่นและสเปกสำคัญ (Key Highlights): อธิบายฟังก์ชันหลักเป็นข้อๆ แบบเข้าใจง่าย ไม่ศัพท์เทคนิคจ๋าเกินไป
-4. สรุปข้อดี vs ข้อควรสังเกต:
+ข้อกำหนดสำคัญมาก:
+1. บรรทัดแรกสุดของบทความ (บรรทัดที่ 1) ต้องเป็นหัวข้อหลัก โดยขึ้นต้นด้วย # เสมอ ตัวอย่างแนวคิด: '{sample_h1}'
+2. *** ข้อห้ามเด็ดขาด ***:
+   - เขียนเนื้อหาเป็นภาษาไทยล้วน 100% เท่านั้น ห้ามมีตัวอักษรจีน (Hanzi) หรือภาษาอื่นปนเด็ดขาด
+   - ห้ามใช้คำว่า "ดีจริงหรือหลอก?" หรือ "หลอกลวง" หรือ "คุ้มไหม ดีจริงหรือหลอก?" เด็ดขาด
+   - ห้ามปฏิเสธหรือขอข้อมูลเพิ่ม ให้เขียนรีวิวตามชื่อสินค้าและสเปกทันที
+3. โครงสร้างเนื้อหา (Markdown):
+   # [หัวข้อบทความที่น่าสนใจ ดึงดูด ชัดเจน]
+   
+   ## เกริ่นนำ
+   (เล่าความน่าสนใจ ปัญหาที่คนมักเจอ หรือเหตุผลที่สินค้านี้ได้รับความนิยม)
+   
+   ## เจาะลึกจุดเด่นและสเปกสำคัญ
+   (อธิบายฟังก์ชัน จุดเด่น 3-4 ข้อให้อ่านเข้าใจง่าย)
+   
+   ## สรุปข้อดี vs ข้อควรสังเกต
    - จุดเด่นที่ประทับใจ
-   - ข้อสังเกตเล็กๆ น้อยๆ เพื่อความจริงใจและน่าเชื่อถือ
-5. บทสรุปและความคุ้มค่า: สรุปอย่างชัดเจนว่าสินค้านี้เหมาะกับใคร คุ้มค่ากับราคา {price} บาทอย่างไร
-6. ข้อเสนอพิเศษและโปรโมชั่น:
-   - แนะนำการเก็บโค้ดส่วนลดและโปรโมชั่นส่งฟรี
-   - ปุ่มสั่งซื้อ: [👉 ดูราคาโปรโมชั่นล่าสุดและสั่งซื้อคลิกที่นี่]({affiliate_link})
+   - ข้อสังเกตเล็กๆ น้อยๆ เพื่อความจริงใจ
+   
+   ## บทสรุปและความคุ้มค่า
+   (วิเคราะห์ว่าเหมาะกับใคร ในงบประมาณ {price} บาท)
+   
+   ## สรุปโปรโมชั่นและพิกัดซื้อ
+   👉 [ดูราคาโปรโมชั่นล่าสุดและสั่งซื้อคลิกที่นี่]({affiliate_link})
 
-ข้อควรระวัง:
-- ใช้ภาษาไทยระดับบล็อกเกอร์มืออาชีพ สำนวนลื่นไหล ไม่ทื่อ ไม่แปลกแยก
-- ตอบเฉพาะตัวเนื้อหา Markdown เท่านั้น ไม่ต้องใส่คำอธิบายการรัน prompt
+ตอบเป็นเนื้อหา Markdown ภาษาไทยล้วนเท่านั้น
 """
-
-
 
     payload = {
         "model": model_name,
@@ -97,19 +105,34 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
         if res.status_code == 200:
             content = res.json().get("response", "").strip()
             
+            # ลบตัวอักษรจีนที่อาจเล็ดลอดออกมา (Safety Filter)
+            content = re.sub(r'[\u4e00-\u9fff]+[^\n\r]*', '', content)
+            
             # สกัด H1 หรือหัวข้อแรกสำหรับเป็น Post Title
+            generic_sections = [
+                "เจาะลึกจุดเด่น", "สเปกสำคัญ", "key highlights", "เกริ่นนำ", "introduction",
+                "สรุปข้อดี", "ข้อควรสังเกต", "บทสรุป", "ข้อเสนอพิเศษ", "โปรโมชั่น", "สรุปโปรโมชั่น"
+            ]
+            
             h1_match = re.search(r'^#{1,3}\s+(.+)$', content, re.MULTILINE)
+            extracted_title = ""
             if h1_match:
-                article_title = h1_match.group(1).strip()
-                article_title = re.sub(r'^(หัวข้อหลัก|หัวข้อ|Title|H1)\s*[:：]\s*', '', article_title, flags=re.IGNORECASE)
-                article_title = article_title.replace('**', '').replace('__', '').strip()
-            else:
-                article_title = sample_h1
+                candidate = h1_match.group(1).strip()
+                candidate = re.sub(r'^(หัวข้อหลัก|หัวข้อ|Title|H1)\s*[:：]\s*', '', candidate, flags=re.IGNORECASE)
+                candidate = candidate.replace('**', '').replace('__', '').strip()
+                # ตรวจว่าไม่ใช่หัวข้อ section ทั่วไป
+                if len(candidate) >= 8 and not any(sec in candidate.lower() for sec in generic_sections):
+                    extracted_title = candidate
 
+            article_title = extracted_title if extracted_title else sample_h1
+
+            # ตรวจสอบว่าบรรทัดแรกเริ่มด้วย H1 หรือไม่ ถ้าไม่ ให้ใส่ให้ถูกต้อง
+            if not content.startswith("#"):
+                content = f"# {article_title}\n\n{content}"
 
             # สร้างสรุปสั้นๆ สำหรับ Meta Description
             clean_lines = [line.strip() for line in content.split("\n") if line.strip() and not line.startswith(('#', '!', '['))]
-            summary = " ".join(clean_lines)[:160] + "..." if clean_lines else f"รีวิว {title} ราคาโปรโมชั่นล่าสุดที่ Shopee"
+            summary = " ".join(clean_lines)[:160] + "..." if clean_lines else f"รีวิว {title} สรุปสเปกและราคาโปรโมชั่นล่าสุด"
 
             slug = clean_slug(title, product["id"])
 

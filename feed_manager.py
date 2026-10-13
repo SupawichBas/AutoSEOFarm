@@ -36,7 +36,15 @@ def find_feed_file():
     csv_files.sort(key=os.path.getsize, reverse=True)
     return csv_files[0]
 
-def get_next_products(batch_size=5, target_categories=None, min_sold=5, min_price=290):
+DEFAULT_TECH_AUTO_CATS = [
+    "Computers & Accessories",
+    "Automobiles",
+    "Mobile & Gadgets",
+    "Home Appliances",
+    "Audio"
+]
+
+def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, min_sold=5, min_price=290):
     """ดึงสินค้าชุดใหม่จาก CSV Feed ที่ยังไม่เคยประมวลผล (กรองยอดขายและราคาขั้นต่ำ)"""
 
     feed_path = find_feed_file()
