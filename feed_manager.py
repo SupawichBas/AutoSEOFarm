@@ -4,7 +4,12 @@ import json
 import os
 import sys
 
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 HISTORY_FILE = "history.json"
+
 
 def load_history():
     """โหลดประวัติสินค้าที่เคยสร้างบทความไปแล้ว"""
