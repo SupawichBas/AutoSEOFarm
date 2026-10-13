@@ -140,6 +140,19 @@ def main():
     print("\n[*] กำลังจัดเตรียมบทความสำหรับ Blogger...")
     export_to_blogger_format(new_articles)
 
+    # 4.1 โพสต์ขึ้น Blogger อัตโนมัติผ่าน Google API (ถ้ามีไฟล์กุญแจ)
+    if os.path.exists("token.json") or os.path.exists("client_secret.json"):
+        try:
+            from blogger_api import get_blogger_service, get_target_blog, publish_to_blogger
+            print("\n[*] กำลังส่งบทความขึ้น Blogger อัตโนมัติ...")
+            b_service = get_blogger_service()
+            b_blog = get_target_blog(b_service)
+            for art in new_articles:
+                publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
+        except Exception as e:
+            print(f"[!] Blogger Auto-Post notice: {e}")
+
+
     # 5. ซิงค์ขึ้น GitHub
     if config.get("auto_git_push", True):
         print("\n[*] ทำการบันทึกสถานะผ่าน Git...")

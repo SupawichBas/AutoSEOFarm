@@ -1,8 +1,10 @@
 import datetime
 import html
 import os
+import re
 import sys
 import markdown
+
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -17,15 +19,24 @@ def export_to_blogger_format(articles):
     exported_files = []
 
     for art in articles:
-        body_html = markdown.markdown(art["content_markdown"], extensions=['extra'])
+        # ลบรูปซ้ำในเนื้อหา markdown (ถ้ามี) เพื่อให้รูปบนสุดเป็นมาตรฐานเดียว
+        clean_md = re.sub(r'!\[.*?\]\(.*?\)', '', art["content_markdown"])
+        body_html = markdown.markdown(clean_md, extensions=['extra'])
+        img_url = art.get("image") or ""
         
         blogger_html = f"""<!-- 
 หัวข้อบทความ (Post Title): {art['article_title']}
 ป้ายกำกับ (Labels / Tags): {art['category']}, Shopee, รีวิวสินค้า
-ลิงก์ภาพหน้าปก: {art['image']}
+ลิงก์ภาพหน้าปก: {img_url}
 -->
 
 <div style="font-family: Arial, sans-serif; line-height: 1.8; color: #333;">
+  <div class="separator" style="clear: both; text-align: center; margin-bottom: 25px;">
+    <a href="{img_url}" style="margin-left: 1em; margin-right: 1em;">
+      <img border="0" data-original-height="800" data-original-width="800" src="{img_url}" alt="{html.escape(art['article_title'])}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+    </a>
+  </div>
+
   {body_html}
 
   <div style="margin-top: 30px; padding: 20px; background-color: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; text-align: center;">
@@ -61,6 +72,7 @@ def generate_blogger_xml(articles_with_html):
         escaped_content = html.escape(content_only)
         escaped_title = html.escape(art["article_title"])
         escaped_cat = html.escape(art["category"])
+        img_url = art.get("image", "")
 
         entry = f"""  <entry>
     <id>tag:blogger.com,1999:blog-0.post-{art['id']}</id>
@@ -68,6 +80,7 @@ def generate_blogger_xml(articles_with_html):
     <updated>{now_iso}</updated>
     <title type='text'>{escaped_title}</title>
     <content type='html'>{escaped_content}</content>
+    <media:thumbnail xmlns:media='http://search.yahoo.com/mrss/' url='{img_url}' height='400' width='400'/>
     <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/blogger/2008/kind#post'/>
     <category scheme='http://www.blogger.com/atom/ns#' term='{escaped_cat}'/>
     <category scheme='http://www.blogger.com/atom/ns#' term='Shopee'/>
@@ -75,6 +88,7 @@ def generate_blogger_xml(articles_with_html):
     <status>LIVE</status>
   </entry>"""
         entries_xml.append(entry)
+
 
     feed_xml = f"""<?xml version='1.0' encoding='UTF-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom' 

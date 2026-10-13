@@ -1,3 +1,6 @@
 *.csv
 __pycache__/
 *.log
+client_secret*.json
+token.json
+
