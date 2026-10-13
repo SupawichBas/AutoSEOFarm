@@ -17,5 +17,6 @@
   "site_url": "https://tautoguide.blogspot.com",
   "github_pages_url": "https://supawichbas.github.io/ShopeeAutoSEOFarm",
   "primary_platform": "blogger",
+  "enable_blogger_api": false,
   "auto_git_push": true
 }

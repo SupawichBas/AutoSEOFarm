@@ -151,25 +151,26 @@ def main():
     print("\n[*] กำลังจัดเตรียมบทความสำหรับ Blogger...")
     export_to_blogger_format(new_articles)
 
-    # 4.1 โพสต์ขึ้น Blogger อัตโนมัติผ่าน Google API (ถ้ามีไฟล์กุญแจ)
-    if os.path.exists("token.json") or os.path.exists("client_secret.json"):
+    # 4.1 โพสต์ขึ้น Blogger อัตโนมัติผ่าน Google API (ปิดการใช้งานอัตโนมัติเพื่อความปลอดภัยของบัญชี)
+    if config.get("enable_blogger_api", False) and (os.path.exists("token.json") or os.path.exists("client_secret.json")):
         try:
             from blogger_api import get_blogger_service, get_target_blog, publish_to_blogger
             print("\n[*] กำลังส่งบทความขึ้น Blogger อัตโนมัติ...")
             b_service = get_blogger_service()
             b_blog = get_target_blog(b_service)
             success_blogger = 0
+            api_exhausted = False
             for art in new_articles:
-                res_url = None
-                for attempt in range(2):
-                    res_url = publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
-                    if res_url:
-                        success_blogger += 1
-                        break
-                    print("    [!] รอ 10 วินาทีเพื่อลองส่งขึ้น Blogger ใหม่อีกครั้ง...")
-                    time.sleep(10)
-                time.sleep(3.5)
-            print(f"[*] โพสต์ขึ้น Blogger เรียบร้อยทั้งหมด {success_blogger}/{len(new_articles)} บทความ")
+                if api_exhausted:
+                    continue
+                res_url = publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
+                if res_url:
+                    success_blogger += 1
+                else:
+                    print("    [!] ตรวจพบ Blogger API มีข้อจำกัดโควตา ข้ามการส่งผ่าน API (สามารถนำเข้าผ่าน blogger_import.xml ได้)")
+                    api_exhausted = True
+                time.sleep(3.0)
+            print(f"[*] โพสต์ขึ้น Blogger ผ่าน API เรียบร้อยทั้งหมด {success_blogger}/{len(new_articles)} บทความ")
         except Exception as e:
             print(f"[!] Blogger Auto-Post notice: {e}")
 
