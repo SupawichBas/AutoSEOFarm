@@ -95,10 +95,12 @@ def main():
 
     # 1. คัดเลือกสินค้าใหม่จาก CSV Feed
     products = get_next_products(
-        batch_size=config.get("batch_size", 3),
+        batch_size=config.get("batch_size", 5),
         target_categories=config.get("target_categories"),
-        min_sold=config.get("min_sold", 5)
+        min_sold=config.get("min_sold", 5),
+        min_price=config.get("min_price", 290)
     )
+
 
     if not products:
         print("[!] ไม่พบสินค้าใหม่ที่ตรงตามเงื่อนไขใน Feed")
@@ -147,10 +149,16 @@ def main():
             print("\n[*] กำลังส่งบทความขึ้น Blogger อัตโนมัติ...")
             b_service = get_blogger_service()
             b_blog = get_target_blog(b_service)
+            success_blogger = 0
             for art in new_articles:
-                publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
+                res_url = publish_to_blogger(art, blog_id=b_blog['id'], service=b_service)
+                if res_url:
+                    success_blogger += 1
+                time.sleep(1.5)
+            print(f"[*] โพสต์ขึ้น Blogger เรียบร้อยทั้งหมด {success_blogger}/{len(new_articles)} บทความ")
         except Exception as e:
             print(f"[!] Blogger Auto-Post notice: {e}")
+
 
 
     # 5. ซิงค์ขึ้น GitHub

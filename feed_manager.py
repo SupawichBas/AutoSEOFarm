@@ -31,8 +31,9 @@ def find_feed_file():
     csv_files.sort(key=os.path.getsize, reverse=True)
     return csv_files[0]
 
-def get_next_products(batch_size=3, target_categories=None, min_sold=5):
-    """ดึงสินค้าชุดใหม่จาก CSV Feed ที่ยังไม่เคยประมวลผล"""
+def get_next_products(batch_size=5, target_categories=None, min_sold=5, min_price=290):
+    """ดึงสินค้าชุดใหม่จาก CSV Feed ที่ยังไม่เคยประมวลผล (กรองยอดขายและราคาขั้นต่ำ)"""
+
     feed_path = find_feed_file()
     print(f"[*] กำลังอ่าน Feed จาก: {feed_path}")
 
@@ -66,12 +67,22 @@ def get_next_products(batch_size=3, target_categories=None, min_sold=5):
             if not affiliate_link or not affiliate_link.startswith("http"):
                 continue
 
+            # ตรวจสอบราคาขั้นต่ำ
+            price_raw = row.get("sale_price") or row.get("price") or "0"
+            try:
+                price_num = float(price_raw)
+            except (ValueError, TypeError):
+                price_num = 0
+            if min_price > 0 and price_num < min_price:
+                continue
+
             title = row.get("title", "").strip()
             if not title:
                 continue
 
-            price = row.get("sale_price") or row.get("price") or "0"
+            price = str(int(price_num)) if price_num.is_integer() else str(price_num)
             image = row.get("image_link") or row.get("image_link_4") or ""
+
 
             product = {
                 "id": item_id,
