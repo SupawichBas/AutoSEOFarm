@@ -2,7 +2,13 @@ import datetime
 import html
 import json
 import os
+import sys
 import markdown
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 
 DOCS_DIR = "docs"
 ARTICLES_DIR = os.path.join(DOCS_DIR, "articles")
