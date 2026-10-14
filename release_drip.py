@@ -18,6 +18,15 @@ QUEUE_FILE = "article_queue.json"
 DATA_FILE = os.path.join("docs", "data", "articles.json")
 CONFIG_FILE = "config.json"
 
+def get_git_branch():
+    try:
+        res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+        if res.returncode == 0 and res.stdout.strip():
+            return res.stdout.strip()
+    except Exception:
+        pass
+    return "main"
+
 def load_json(filepath, default_val):
     if os.path.exists(filepath):
         try:
@@ -71,15 +80,15 @@ def release_drip(count=1):
     print("\n[*] กำลังอัปเดตหน้าเว็บและ Sitemap...")
     update_website(live_articles, config)
     export_to_blogger_format(released)
-
     # ซิงค์ Git
     if config.get("auto_git_push", True):
         try:
+            curr_branch = get_git_branch()
             subprocess.run(["git", "add", "docs/", "article_queue.json", "blogger_posts/"], check=False)
             commit_msg = f"Drip release: Add {len(released)} article(s) ({now.strftime('%Y-%m-%d %H:%M')})"
             subprocess.run(["git", "commit", "-m", commit_msg], check=False)
-            subprocess.run(["git", "push", "origin", "main"], check=False)
-            print("[✓] ซิงค์ขึ้น GitHub Pages เรียบร้อย")
+            subprocess.run(["git", "push", "origin", curr_branch], check=False)
+            print(f"[✓] ซิงค์ขึ้น GitHub ({curr_branch}) เรียบร้อย")
         except Exception as e:
             print(f"[!] Git notice: {e}")
 

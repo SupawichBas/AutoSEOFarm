@@ -1,5 +1,6 @@
 import datetime
 import re
+import subprocess
 import sys
 
 if sys.platform == "win32":
@@ -114,3 +115,13 @@ def get_next_schedule_slots(count, start_after=None):
         current_date += datetime.timedelta(days=1)
 
     return slots
+
+def get_git_branch(fallback="main"):
+    """ค้นหาชื่อ branch ปัจจุบันของ Git"""
+    try:
+        res = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+        if res.returncode == 0 and res.stdout.strip():
+            return res.stdout.strip()
+    except Exception:
+        pass
+    return fallback

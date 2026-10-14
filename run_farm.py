@@ -8,7 +8,7 @@ from feed_manager import get_next_products
 from article_generator import generate_seo_article
 from site_builder import update_website, load_site_articles
 from blogger_exporter import export_to_blogger_format
-from scheduler_helper import get_next_schedule_slots, get_latest_article_datetime, format_thai_date, format_price
+from scheduler_helper import get_next_schedule_slots, get_latest_article_datetime, format_thai_date, format_price, get_git_branch
 from qa_inspector import inspect_article
 
 # บังคับ UTF-8 สำหรับ Windows Terminal
@@ -77,10 +77,11 @@ def git_commit_and_push(article_count):
         # ตรวจสอบว่ามี Remote Origin หรือไม่
         result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True)
         if result.returncode == 0 and result.stdout.strip():
-            print("[*] กำลัง Push ขึ้น GitHub Pages...")
-            push_res = subprocess.run(["git", "push", "-u", "origin", "main"], capture_output=True, text=True)
+            curr_branch = get_git_branch()
+            print(f"[*] กำลัง Push ขึ้น GitHub ({curr_branch})...")
+            push_res = subprocess.run(["git", "push", "-u", "origin", curr_branch], capture_output=True, text=True)
             if push_res.returncode == 0:
-                print("[✓] Push ขึ้น GitHub สำเร็จ! หน้าเว็บจะอัปเดตออนไลน์ใน 30 วินาที")
+                print(f"[✓] Push ขึ้น GitHub ({curr_branch}) สำเร็จ! หน้าเว็บจะอัปเดตออนไลน์ใน 30 วินาที")
             else:
                 print(f"[!] ข้อความจาก Git Push: {push_res.stderr.strip() or push_res.stdout.strip()}")
         else:

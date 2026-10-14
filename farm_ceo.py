@@ -29,7 +29,8 @@ from scheduler_helper import (
     get_next_schedule_slots,
     get_latest_article_datetime,
     format_thai_date,
-    format_price
+    format_price,
+    get_git_branch
 )
 from release_drip import release_drip
 
@@ -77,9 +78,18 @@ def show_dashboard():
     avg_price = sum(prices) / len(prices) if prices else 0
     max_price = max(prices) if prices else 0
 
+    curr_branch = get_git_branch()
+    branch_labels = {
+        "main": "🟢 main (Production / หน้าเว็บจริง)",
+        "release": "🟡 release (Staging / ตรวจสอบก่อนปล่อยจริง)",
+        "develop": "🔵 develop (Development / พัฒนาและร่างบทความ)"
+    }
+    branch_display = branch_labels.get(curr_branch, f"⚪ {curr_branch}")
+
     print("=" * 66)
     print("📊 รายงานสรุปผลงานระดับผู้บริหาร (Executive KPI Dashboard)")
     print("=" * 66)
+    print(f"  🌿 สภาพแวดล้อม (Git Branch)         : {branch_display}")
     print(f"  🌐 เว็บไซต์หลัก (Primary Platform) : {config.get('site_url', 'N/A')}")
     print(f"  🚀 บทความออนไลน์ (Live Production) : {len(live)} บทความ")
     print(f"  📦 บทความในคิวรอปล่อย (Staging Queue) : {len(queue)} บทความ")
@@ -203,6 +213,79 @@ def run_sprint_pipeline(count=5, direct_to_queue=True):
     print("=" * 66)
 
 
+def git_switch_branch(target):
+    try:
+        res = subprocess.run(["git", "checkout", target], capture_output=True, text=True)
+        if res.returncode == 0:
+            print(f"[✓] สลับไปยัง Branch '{target}' สำเร็จ")
+            return True
+        print(f"[!] ไม่สามารถสลับ Branch ได้: {res.stderr.strip() or res.stdout.strip()}")
+        return False
+    except Exception as e:
+        print(f"[!] Error: {e}")
+        return False
+
+def git_promote_branch(source, target):
+    try:
+        print(f"[*] กำลังสลับไปที่ Branch '{target}'...")
+        res_co = subprocess.run(["git", "checkout", target], capture_output=True, text=True)
+        if res_co.returncode != 0:
+            print(f"[!] ล้มเหลวในการ checkout '{target}': {res_co.stderr.strip()}")
+            return False
+        
+        print(f"[*] กำลังรวมงาน (Merge) จาก '{source}' เข้าสู่ '{target}'...")
+        res_mg = subprocess.run(["git", "merge", source, "-m", f"Promote {source} to {target}"], capture_output=True, text=True)
+        if res_mg.returncode != 0:
+            print(f"[!] ไม่สามารถ Merge ได้: {res_mg.stderr.strip() or res_mg.stdout.strip()}")
+            return False
+        
+        print(f"[*] กำลัง Push '{target}' ขึ้น GitHub...")
+        res_push = subprocess.run(["git", "push", "origin", target], capture_output=True, text=True)
+        if res_push.returncode == 0:
+            print(f"[✓] รวมงานจาก '{source}' -> '{target}' และซิงค์ขึ้น GitHub สำเร็จสมบูรณ์!")
+            return True
+        else:
+            print(f"[!] ข้อความจาก Git Push: {res_push.stderr.strip() or res_push.stdout.strip()}")
+            return False
+    except Exception as e:
+        print(f"[!] Error: {e}")
+        return False
+
+def git_branch_menu():
+    while True:
+        curr = get_git_branch()
+        print("\n" + "=" * 66)
+        print(f"🌿 บริหารจัดการกิ่ง Git Branches (ปัจจุบันอยู่ที่: {curr})")
+        print("=" * 66)
+        print("  [1] สลับไปที่ 'develop' (กิ่งพัฒนา, ร่างบทความ, วิจัย Feed)")
+        print("  [2] สลับไปที่ 'release' (กิ่ง Staging, ตรวจสอบ QA ก่อนปล่อย)")
+        print("  [3] สลับไปที่ 'main'    (กิ่ง Production จริง, แสดงผลบน GitHub Pages)")
+        print("  ----------------------------------------------------------------")
+        print("  [4] 🚀 รวมงาน: develop  -->  release (ส่งบทความเข้าคิว Staging)")
+        print("  [5] 🏆 ปล่อยจริง: release -->  main    (ปล่อยบทความที่ผ่าน QA ขึ้น Live Website)")
+        print("  [0] กลับสู่เมนูหลัก")
+
+        sub_choice = input("\n👉 กรุณาเลือกคำสั่ง [0-5]: ").strip()
+        if sub_choice == "1":
+            git_switch_branch("develop")
+        elif sub_choice == "2":
+            git_switch_branch("release")
+        elif sub_choice == "3":
+            git_switch_branch("main")
+        elif sub_choice == "4":
+            confirm = input("ยืนยันการรวมงานจาก develop เข้าสู่ release หรือไม่? (y/n): ").strip().lower()
+            if confirm == "y":
+                git_promote_branch("develop", "release")
+        elif sub_choice == "5":
+            confirm = input("ยืนยันการปล่อยงานจาก release ขึ้น main (Production Live) หรือไม่? (y/n): ").strip().lower()
+            if confirm == "y":
+                git_promote_branch("release", "main")
+        elif sub_choice == "0":
+            break
+        else:
+            print("[!] คำสั่งไม่ถูกต้อง")
+        time.sleep(1)
+
 def interactive_menu():
     while True:
         print_banner()
@@ -214,10 +297,11 @@ def interactive_menu():
         print("  [4] 🌐 รีบิลด์และอัปเดตหน้าเว็บจริง (GitHub Pages Rebuild)")
         print("  [5] 📄 อัปเดตและส่งออกไฟล์ Blogger XML (สำหรับ 1-Click Import)")
         print("  [6] 📊 รีเฟรชดูรายงานสถานะระบบ (Dashboard)")
+        print("  [7] 🌿 บริหารจัดการ Git Branches (develop / release / main)")
         print("  [0] ออกจากระบบ")
         
         try:
-            choice = input("\n👉 กรุณาเลือกคำสั่ง [0-6]: ").strip()
+            choice = input("\n👉 กรุณาเลือกคำสั่ง [0-7]: ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\nปิดการทำงานของระบบ CEO Pipeline")
             break
@@ -254,11 +338,13 @@ def interactive_menu():
             input("\nกด Enter เพื่อกลับสู่เมนูหลัก...")
         elif choice == "6":
             continue
+        elif choice == "7":
+            git_branch_menu()
         elif choice == "0":
             print("\nปิดการทำงานของระบบ CEO Pipeline เรียบร้อย")
             break
         else:
-            print("[!] คำสั่งไม่ถูกต้อง กรุณาเลือกหมายเลข 0-6")
+            print("[!] คำสั่งไม่ถูกต้อง กรุณาเลือกหมายเลข 0-7")
             time.sleep(1)
 
 def main():
