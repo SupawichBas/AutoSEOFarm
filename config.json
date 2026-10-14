@@ -3,7 +3,8 @@
   "model_name": "qwen2.5",
   "batch_size": 50,
   "min_sold": 5,
-  "min_price": 290,
+  "min_price": 490,
+  "require_mall_or_preferred": true,
   "target_categories": [
     "Computers & Accessories",
     "Automobiles",

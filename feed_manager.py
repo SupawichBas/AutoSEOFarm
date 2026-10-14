@@ -44,8 +44,8 @@ DEFAULT_TECH_AUTO_CATS = [
     "Audio"
 ]
 
-def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, min_sold=5, min_price=290):
-    """ดึงสินค้าชุดใหม่จาก CSV Feed ที่ยังไม่เคยประมวลผล (กรองยอดขายและราคาขั้นต่ำ)"""
+def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, min_sold=5, min_price=490, require_mall_or_preferred=True):
+    """ดึงสินค้าชุดใหม่จาก CSV Feed ที่ยังไม่เคยประมวลผล (กรองยอดขาย ราคาขั้นต่ำ และ Shopee Mall/ร้านแนะนำ)"""
 
     feed_path = find_feed_file()
     print(f"[*] กำลังอ่าน Feed จาก: {feed_path}")
@@ -65,6 +65,12 @@ def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, mi
             # ตรวจสอบหมวดหมู่
             cat1 = row.get("global_category1", "").strip()
             if target_cats and cat1 not in target_cats:
+                continue
+
+            # ตรวจสอบประเภทร้านค้า (Shopee Mall หรือ ร้านค้าแนะนำ เพื่อค่าคอมสูงและความน่าเชื่อถือ)
+            is_official = (row.get("is_official_shop") or "").strip().lower() == "official shop"
+            is_preferred = "preferred shop" in (row.get("is_preferred_shop") or "").strip().lower()
+            if require_mall_or_preferred and not (is_official or is_preferred):
                 continue
 
             # ตรวจสอบยอดขาย
@@ -96,6 +102,7 @@ def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, mi
             price = str(int(price_num)) if price_num.is_integer() else str(price_num)
             image = row.get("image_link") or row.get("image_link_4") or ""
 
+            shop_type = "Shopee Mall" if is_official else ("ร้านแนะนำ" if is_preferred else "ร้านทั่วไป")
 
             product = {
                 "id": item_id,
@@ -106,7 +113,8 @@ def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, mi
                 "category2": row.get("global_category2", "").strip(),
                 "image": image,
                 "affiliate_link": affiliate_link,
-                "shop_name": row.get("shop_name", "").strip()
+                "shop_name": row.get("shop_name", "").strip(),
+                "shop_type": shop_type
             }
             selected_products.append(product)
             history.add(item_id)

@@ -90,6 +90,7 @@ def show_dashboard():
     print("📊 รายงานสรุปผลงานระดับผู้บริหาร (Executive KPI Dashboard)")
     print("=" * 66)
     print(f"  🌿 สภาพแวดล้อม (Git Branch)         : {branch_display}")
+    print(f"  🛍️ นโยบายคัดสรรสินค้า (Scout Policy) : {'Shopee Mall & ร้านแนะนำ (คอมมิชชั่นสูง)' if config.get('require_mall_or_preferred', True) else 'ทุกร้าน'} | ขั้นต่ำ ฿{config.get('min_price', 490):,} (ขายแล้ว >={config.get('min_sold', 5)})")
     print(f"  🌐 เว็บไซต์หลัก (Primary Platform) : {config.get('site_url', 'N/A')}")
     print(f"  🚀 บทความออนไลน์ (Live Production) : {len(live)} บทความ")
     print(f"  📦 บทความในคิวรอปล่อย (Staging Queue) : {len(queue)} บทความ")
@@ -119,7 +120,8 @@ def run_sprint_pipeline(count=5, direct_to_queue=True):
         batch_size=count,
         target_categories=config.get("target_categories"),
         min_sold=config.get("min_sold", 5),
-        min_price=config.get("min_price", 290)
+        min_price=config.get("min_price", 490),
+        require_mall_or_preferred=config.get("require_mall_or_preferred", True)
     )
 
     if not products:
@@ -128,7 +130,8 @@ def run_sprint_pipeline(count=5, direct_to_queue=True):
 
     print(f"  [✓] Scout คัดสรรสินค้าสำเร็จ {len(products)} รายการ:")
     for p in products:
-        print(f"      - {p['title'][:45]}... (฿{format_price(p['price'])}) | ขายแล้ว {p['sold']}")
+        shop_tag = f"[{p.get('shop_type', 'Shopee Mall')}]"
+        print(f"      - {shop_tag:15} {p['title'][:40]}... (฿{format_price(p['price'])}) | ขายแล้ว {p['sold']}")
 
     # คำนวณช่วงเวลาปล่อยบทความ
     queue = load_json(QUEUE_FILE, [])

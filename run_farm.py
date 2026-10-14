@@ -96,12 +96,13 @@ def main():
 
     config = load_config()
 
-    # 1. คัดเลือกสินค้าใหม่จาก CSV Feed
+    # 1. คัดเลือกสินค้าใหม่จาก CSV Feed (กรอง Shopee Mall / ร้านแนะนำ และราคาขั้นต่ำ)
     products = get_next_products(
         batch_size=config.get("batch_size", 5),
         target_categories=config.get("target_categories"),
         min_sold=config.get("min_sold", 5),
-        min_price=config.get("min_price", 290)
+        min_price=config.get("min_price", 490),
+        require_mall_or_preferred=config.get("require_mall_or_preferred", True)
     )
 
 
