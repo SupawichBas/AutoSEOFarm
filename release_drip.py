@@ -12,7 +12,7 @@ if sys.platform == "win32":
 
 from site_builder import update_website, load_site_articles
 from blogger_exporter import export_to_blogger_format
-from scheduler_helper import format_thai_date, to_iso_local
+from scheduler_helper import format_thai_date, to_iso_local, format_price
 
 QUEUE_FILE = "article_queue.json"
 DATA_FILE = os.path.join("docs", "data", "articles.json")
@@ -46,17 +46,21 @@ def release_drip(count=1):
 
     released = []
     now = datetime.datetime.now()
+    release_count = min(count, len(queue))
 
-    for i in range(min(count, len(queue))):
+    for i in range(release_count):
         art = queue.pop(0)
-        # ตั้งเวลาปล่อยเป็นเวลาปัจจุบัน
-        art["created_at"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        art["date_iso"] = to_iso_local(now)
+        # หากปล่อยหลายบทความพร้อมกัน ให้กระจายเวลาย้อนหลังทีละ 2 ชั่วโมงเพื่อให้เป็นธรรมชาติ
+        offset_hours = (release_count - 1 - i) * 2
+        art_time = now - datetime.timedelta(hours=offset_hours)
+        
+        art["created_at"] = art_time.strftime("%Y-%m-%d %H:%M:%S")
+        art["date_iso"] = to_iso_local(art_time)
         
         live_articles.insert(0, art) # เพิ่มไว้บนสุด
         released.append(art)
-        print(f"\n[✓] ปล่อยบทความ: {art['article_title']}")
-        print(f"    - สินค้า: {art['product_title'][:40]}... (฿{art['price']})")
+        print(f"\n[✓] ปล่อยบทความ ({i+1}/{release_count}): {art['article_title']}")
+        print(f"    - สินค้า: {art['product_title'][:40]}... (฿{format_price(art['price'])})")
         print(f"    - วันเวลาเผยแพร่: {art['created_at']} ({format_thai_date(art['created_at'])})")
 
     # บันทึกคิวที่เหลือ และบทความที่ออนไลน์อยู่

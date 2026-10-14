@@ -8,7 +8,8 @@ from feed_manager import get_next_products
 from article_generator import generate_seo_article
 from site_builder import update_website, load_site_articles
 from blogger_exporter import export_to_blogger_format
-from scheduler_helper import get_next_schedule_slots, get_latest_article_datetime, format_thai_date
+from scheduler_helper import get_next_schedule_slots, get_latest_article_datetime, format_thai_date, format_price
+from qa_inspector import inspect_article
 
 # บังคับ UTF-8 สำหรับ Windows Terminal
 if sys.platform == "win32":
@@ -117,7 +118,7 @@ def main():
     # 2. ให้ Qwen2.5 สร้างบทความ SEO พร้อมฝังวันเวลาเผยแพร่
     for idx, prod in enumerate(products, 1):
         slot_time = schedule_slots[idx - 1]
-        print(f"\n[{idx}/{len(products)}] กำลังเขียนบทความ: {prod['title'][:50]}... (฿{prod['price']})")
+        print(f"\n[{idx}/{len(products)}] กำลังเขียนบทความ: {prod['title'][:50]}... (฿{format_price(prod['price'])})")
         print(f"    📅 เวลาปล่อยบทความ: {slot_time.strftime('%Y-%m-%d %H:%M')} ({format_thai_date(slot_time)})")
         start_t = time.time()
         
@@ -129,10 +130,16 @@ def main():
         )
         
         if art:
-            save_markdown_file(art)
-            new_articles.append(art)
-            elapsed = round(time.time() - start_t, 2)
-            print(f"    -> เขียนเสร็จสมบูรณ์ใน {elapsed} วินาที")
+            qa_res = inspect_article(art, auto_heal=True)
+            if qa_res["passed"]:
+                art = qa_res["article"]
+                save_markdown_file(art)
+                new_articles.append(art)
+                elapsed = round(time.time() - start_t, 2)
+                heal_note = f" (Auto-Healed: {len(qa_res['heal_log'])} รายการ)" if qa_res["healed"] else ""
+                print(f"    -> [QA ผ่าน {qa_res['score']}/100]{heal_note} บันทึกสำเร็จใน {elapsed} วินาที")
+            else:
+                print(f"    -> [QA ไม่ผ่าน: ได้ {qa_res['score']}/100] ปฏิเสธบทความเพื่อความปลอดภัยของคุณภาพ")
         else:
             print(f"    -> ข้ามเนื่องจากเกิดข้อผิดพลาดในการเจนเนื้อหา")
 

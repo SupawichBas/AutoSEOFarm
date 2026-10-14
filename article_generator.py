@@ -44,12 +44,13 @@ ANGLES = [
 
 import random
 import time
-from scheduler_helper import parse_datetime, to_iso_local
+from scheduler_helper import parse_datetime, to_iso_local, format_price, format_prices_in_text
 
 def generate_seo_article(product, ollama_url="http://localhost:11434/api/generate", model_name="qwen2.5", publish_time=None):
     """ใช้ Qwen2.5 เขียนบทความ SEO คุณภาพสูงด้วยมุมมองและสำนวนที่หลากหลาย พร้อมฝังเวลาปล่อยบทความ (Schedule)"""
     title = product["title"]
     price = product["price"]
+    formatted_price = format_price(price)
     sold = product["sold"]
     category = product["category"]
     affiliate_link = product["affiliate_link"]
@@ -59,7 +60,7 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
     short_title = title.split("|")[0].split("(")[0].strip()[:35]
 
     angle = random.choice(ANGLES)
-    sample_h1 = angle["headline_idea"].format(short_title=short_title, price=price)
+    sample_h1 = angle["headline_idea"].format(short_title=short_title, price=formatted_price)
 
     prompt = f"""
 คุณคือนักเขียนบล็อกเกอร์รีวิวสินค้ามืออาชีพ ภาษาไทยสละสลวย เป็นกันเอง อ่านง่าย น่าเชื่อถือ
@@ -68,7 +69,7 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
 ข้อมูลสินค้า:
 - ชื่อสินค้า: {title}
 - หมวดหมู่: {category}
-- ราคาประมาณ: {price} บาท (ยอดขายกว่า {sold} ชิ้น)
+- ราคาประมาณ: {formatted_price} บาท (ยอดขายกว่า {sold} ชิ้น)
 
 ข้อกำหนดสำคัญมาก:
 1. บรรทัดแรกสุดของบทความ (บรรทัดที่ 1) ต้องเป็นหัวข้อหลัก โดยขึ้นต้นด้วย # เสมอ ตัวอย่างแนวคิด: '{sample_h1}'
@@ -76,7 +77,8 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
    - เขียนเนื้อหาเป็นภาษาไทยล้วน 100% เท่านั้น ห้ามมีตัวอักษรจีน (Hanzi) หรือภาษาอื่นปนเด็ดขาด
    - ห้ามใช้คำว่า "ดีจริงหรือหลอก?" หรือ "หลอกลวง" หรือ "คุ้มไหม ดีจริงหรือหลอก?" เด็ดขาด
    - ห้ามปฏิเสธหรือขอข้อมูลเพิ่ม ให้เขียนรีวิวตามชื่อสินค้าและสเปกทันที
-3. โครงสร้างเนื้อหา (Markdown):
+3. รูปแบบราคา: หากระบุตัวเลขราคาตั้งแต่ 1,000 บาทขึ้นไป ต้องใส่เครื่องหมายจุลภาค (,) เสมอ เช่น 1,699 บาท หรือ ฿{formatted_price}
+4. โครงสร้างเนื้อหา (Markdown):
    # [หัวข้อบทความที่น่าสนใจ ดึงดูด ชัดเจน]
    
    ## เกริ่นนำ
@@ -90,7 +92,7 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
    - ข้อสังเกตเล็กๆ น้อยๆ เพื่อความจริงใจ
    
    ## บทสรุปและความคุ้มค่า
-   (วิเคราะห์ว่าเหมาะกับใคร ในงบประมาณ {price} บาท)
+   (วิเคราะห์ว่าเหมาะกับใคร ในงบประมาณ {formatted_price} บาท)
    
    ## สรุปโปรโมชั่นและพิกัดซื้อ
    👉 [ดูราคาโปรโมชั่นล่าสุดและสั่งซื้อคลิกที่นี่]({affiliate_link})
@@ -130,6 +132,15 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
 
             article_title = extracted_title if extracted_title else sample_h1
 
+            # ลบข้อความต้องห้ามที่อาจหลุดมา
+            for banned in ["ดีจริงหรือหลอก?", "ดีจริงหรือหลอก", "คุ้มไหม ดีจริงหรือหลอก?", "หลอกลวง"]:
+                content = content.replace(banned, "น่าสนใจแค่ไหน")
+                article_title = article_title.replace(banned, "น่าสนใจแค่ไหน")
+
+            # จัดฟอร์แมตราคาตั้งแต่ 1,000 บาทขึ้นไปให้มีจุลภาค (,)
+            content = format_prices_in_text(content)
+            article_title = format_prices_in_text(article_title)
+
             # ตรวจสอบว่าบรรทัดแรกเริ่มด้วย H1 หรือไม่ ถ้าไม่ ให้ใส่ให้ถูกต้อง
             if not content.startswith("#"):
                 content = f"# {article_title}\n\n{content}"
@@ -137,6 +148,7 @@ def generate_seo_article(product, ollama_url="http://localhost:11434/api/generat
             # สร้างสรุปสั้นๆ สำหรับ Meta Description
             clean_lines = [line.strip() for line in content.split("\n") if line.strip() and not line.startswith(('#', '!', '['))]
             summary = " ".join(clean_lines)[:160] + "..." if clean_lines else f"รีวิว {title} สรุปสเปกและราคาโปรโมชั่นล่าสุด"
+            summary = format_prices_in_text(summary)
 
             slug = clean_slug(title, product["id"])
 

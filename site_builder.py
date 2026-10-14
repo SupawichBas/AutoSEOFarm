@@ -5,7 +5,7 @@ import os
 import sys
 import markdown
 
-from scheduler_helper import format_thai_date, parse_datetime
+from scheduler_helper import format_thai_date, parse_datetime, format_price
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -396,7 +396,7 @@ def build_article_page(art, config):
 
       <div class="cta-box">
         <h3>🔥 เช็คราคาโปรโมชั่นและโค้ดลด Shopee ล่าสุด</h3>
-        <p style="margin-bottom: 0.5rem; color: #7c2d12;">ราคาพิเศษเพียง ฿{art['price']} • มียอดขายแล้วกว่า {art['sold']} ชิ้น</p>
+        <p style="margin-bottom: 0.5rem; color: #7c2d12;">ราคาพิเศษเพียง ฿{format_price(art['price'])} • มียอดขายแล้วกว่า {art['sold']} ชิ้น</p>
         <div class="cta-buttons-wrap">
           <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn" style="font-size: 1.05rem; padding: 0.85rem 1.5rem;">
             🛒 ดูราคาโปรโมชั่นล่าสุดใน Shopee (คลิก)
@@ -412,7 +412,7 @@ def build_article_page(art, config):
   <div class="sticky-mobile-cta">
     <div class="sticky-info">
       <span class="sticky-title">{html.escape(art['product_title'])}</span>
-      <span class="sticky-price">฿{art['price']}</span>
+      <span class="sticky-price">฿{format_price(art['price'])}</span>
     </div>
     <a href="{art['affiliate_link']}" target="_blank" rel="nofollow noopener" class="btn-sticky">
       🛒 สั่งซื้อเลย
@@ -457,7 +457,7 @@ def build_index_page(articles, config):
           <h2 class="card-title">
             <a href="articles/{art['slug']}.html">{html.escape(art['article_title'])}</a>
           </h2>
-          <div class="card-price">฿{art['price']} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(ขายแล้ว {art['sold']} ชิ้น)</span></div>
+          <div class="card-price">฿{format_price(art['price'])} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(ขายแล้ว {art['sold']} ชิ้น)</span></div>
           <a href="articles/{art['slug']}.html" class="btn">อ่านรีวิวและสั่งซื้อ</a>
         </div>
       </div>

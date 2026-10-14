@@ -1,4 +1,5 @@
 import datetime
+import re
 import sys
 
 if sys.platform == "win32":
@@ -42,6 +43,29 @@ def format_thai_date(dt_val, short=False):
     dt = parse_datetime(dt_val)
     months = THAI_MONTHS_SHORT if short else THAI_MONTHS
     return f"{dt.day} {months[dt.month]} {dt.year} เวลา {dt.strftime('%H:%M')} น."
+
+def format_price(price_val):
+    """จัดรูปแบบราคาให้มีเครื่องหมายจุลภาค (,) เมื่อราคาตั้งแต่ 1,000 บาทขึ้นไป เช่น 1,699 หรือ 10,529"""
+    try:
+        clean = str(price_val).replace(",", "").strip()
+        num = float(clean)
+        if num.is_integer():
+            return f"{int(num):,}"
+        return f"{num:,.2f}"
+    except Exception:
+        return str(price_val)
+
+def format_prices_in_text(text):
+    """ตรวจหาตัวเลขราคาตั้งแต่ 1,000 ขึ้นไปที่ยังไม่มีจุลภาค แล้วเติมจุลภาคให้ถูกต้อง"""
+    if not text:
+        return ""
+    # 1. ฿1234 -> ฿1,234
+    text = re.sub(r'฿(\d{4,})', lambda m: f"฿{int(m.group(1)):,}", text)
+    # 2. 1234 บาท หรือ 1234.- -> 1,234 บาท
+    text = re.sub(r'(?<![\d,])(\d{4,})\s*(บาท|\.-)', lambda m: f"{int(m.group(1)):,} {m.group(2)}", text)
+    # 3. ในงบ 1234 หรือ ราคา 1234
+    text = re.sub(r'(งบประมาณ|งบ|ราคา|ราคาพิเศษ|เพียง)\s*(\d{4,})(?!\d)', lambda m: f"{m.group(1)} {int(m.group(2)):,}", text)
+    return text
 
 def to_rfc3339_utc(dt_val):
     """แปลง datetime (เวลาท้องถิ่นไทย UTC+7) เป็น ISO RFC3339 UTC สำหรับ Google Blogger"""

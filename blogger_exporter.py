@@ -5,7 +5,7 @@ import re
 import sys
 import markdown
 
-from scheduler_helper import to_rfc3339_utc, format_thai_date
+from scheduler_helper import to_rfc3339_utc, format_thai_date, format_price
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -51,7 +51,7 @@ def export_to_blogger_format(articles):
 
   <div style="margin-top: 30px; padding: 25px 15px; background-color: #fff7ed; border: 2px dashed #f97316; border-radius: 12px; text-align: center;">
     <h3 style="color: #c2410c; margin-bottom: 8px; font-size: 20px;">🔥 เช็คราคาโปรโมชั่นและโค้ดลด Shopee ล่าสุด</h3>
-    <p style="margin-bottom: 15px; color: #7c2d12;">ราคาพิเศษเพียง ฿{art['price']} • มียอดขายแล้วกว่า {art['sold']} ชิ้น</p>
+    <p style="margin-bottom: 15px; color: #7c2d12;">ราคาพิเศษเพียง ฿{format_price(art['price'])} • มียอดขายแล้วกว่า {art['sold']} ชิ้น</p>
     <div style="display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin: 0 auto;">
       <a href="{art['affiliate_link']}" target="_blank" rel="nofollow" 
          style="display: block; background-color: #ee4d2d; color: #ffffff !important; padding: 14px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
