@@ -199,6 +199,16 @@ def run_sprint_pipeline(count=5, direct_to_queue=True):
         update_website(approved_articles, config)
         export_to_blogger_format(approved_articles)
         print(f"  [✓] เผยแพร่ขึ้น Live Production สำเร็จ {len(approved_articles)} บทความ")
+        if config.get("auto_git_push", True):
+            try:
+                curr_b = get_git_branch()
+                subprocess.run(["git", "add", "docs/", "seo_articles/", "blogger_posts/", "history.json"], check=False)
+                c_msg = f"Live release: Publish {len(approved_articles)} article(s) via CEO Pipeline"
+                subprocess.run(["git", "commit", "-m", c_msg], check=False)
+                subprocess.run(["git", "push", "origin", curr_b], check=False)
+                print(f"  [✓] ซิงค์ขึ้น GitHub ({curr_b}) เรียบร้อย")
+            except Exception as ge:
+                print(f"  [!] Git notice: {ge}")
 
     # บันทึกไฟล์ดิบ Markdown
     os.makedirs("seo_articles", exist_ok=True)
@@ -353,13 +363,14 @@ def interactive_menu():
 def main():
     parser = argparse.ArgumentParser(description="Shopee AutoSEO Farm: CEO Orchestrator")
     parser.add_argument("--sprint", type=int, help="รัน Sprint อัตโนมัติระบุจำนวนบทความ เช่น --sprint 5")
+    parser.add_argument("--live", action="store_true", help="ปล่อยขึ้น Live Production ทันทีโดยไม่พักในคิว")
     parser.add_argument("--drip", type=int, help="ปล่อยบทความจากคิว Staging สู่ Production เช่น --drip 3")
     parser.add_argument("--qa", action="store_true", help="รัน QA Inspector Audit ทั้งระบบ")
     parser.add_argument("--dashboard", action="store_true", help="แสดงแดชบอร์ดสรุปผลงานระดับผู้บริหาร")
     args = parser.parse_args()
 
     if args.sprint:
-        run_sprint_pipeline(count=args.sprint, direct_to_queue=True)
+        run_sprint_pipeline(count=args.sprint, direct_to_queue=not args.live)
     elif args.drip:
         release_drip(args.drip)
     elif args.qa:
