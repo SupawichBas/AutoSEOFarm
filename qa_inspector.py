@@ -19,7 +19,7 @@ import os
 import re
 import sys
 
-from scheduler_helper import format_price, format_prices_in_text
+from scheduler_helper import format_price, format_prices_in_text, format_affiliate_link
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -152,6 +152,15 @@ def inspect_article(article, auto_heal=True):
     img_link = art.get("image", "")
     valid_aff = bool(aff_link and aff_link.startswith("http"))
     valid_img = bool(img_link and img_link.startswith("http"))
+
+    # Auto-heal: ตรวจสอบและฝังพันธมิตร ID ลงในลิงก์และเนื้อหาบทความ
+    if valid_aff and "affiliate_id=" not in aff_link:
+        if auto_heal:
+            new_aff = format_affiliate_link(aff_link)
+            raw_content = raw_content.replace(aff_link, new_aff)
+            art["affiliate_link"] = new_aff
+            aff_link = new_aff
+            heal_log.append("ผูกพันธมิตร ID (15316300462) เข้ากับลิงก์ Shopee Affiliate สำเร็จ")
 
     if valid_aff and valid_img:
         checks["links_assets"] = {"passed": True, "score": 15, "msg": "ผ่าน: ลิงก์ Affiliate และรูปภาพ CDN ถูกต้อง"}

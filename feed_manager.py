@@ -4,6 +4,8 @@ import json
 import os
 import sys
 
+from scheduler_helper import format_affiliate_link
+
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -81,10 +83,11 @@ def get_next_products(batch_size=5, target_categories=DEFAULT_TECH_AUTO_CATS, mi
             if sold < min_sold:
                 continue
 
-            # ตรวจสอบลิงก์ Affiliate
-            affiliate_link = row.get("product_short link", "").strip()
-            if not affiliate_link or not affiliate_link.startswith("http"):
+            # ตรวจสอบลิงก์ Affiliate พร้อมผูกพันธมิตร ID
+            raw_aff_link = row.get("product_short link", "").strip()
+            if not raw_aff_link or not raw_aff_link.startswith("http"):
                 continue
+            affiliate_link = format_affiliate_link(raw_aff_link)
 
             # ตรวจสอบราคาขั้นต่ำ
             price_raw = row.get("sale_price") or row.get("price") or "0"

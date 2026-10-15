@@ -68,6 +68,22 @@ def format_prices_in_text(text):
     text = re.sub(r'(งบประมาณ|งบ|ราคา|ราคาพิเศษ|เพียง)\s*(\d{4,})(?!\d)', lambda m: f"{m.group(1)} {int(m.group(2)):,}", text)
     return text
 
+DEFAULT_AFFILIATE_ID = "15316300462"
+DEFAULT_SUB_ID = "tautoguide"
+
+def format_affiliate_link(raw_link, affiliate_id=DEFAULT_AFFILIATE_ID, sub_id=DEFAULT_SUB_ID):
+    """ต่อท้ายพารามิเตอร์ affiliate_id และ sub_id สำหรับ Shopee Affiliate"""
+    if not raw_link:
+        return ""
+    link = raw_link.strip()
+    if "affiliate_id=" not in link and affiliate_id:
+        sep = "&" if "?" in link else "?"
+        link = f"{link}{sep}affiliate_id={affiliate_id}"
+    if "sub_id=" not in link and sub_id:
+        sep = "&" if "?" in link else "?"
+        link = f"{link}{sep}sub_id={sub_id}"
+    return link
+
 def to_rfc3339_utc(dt_val):
     """แปลง datetime (เวลาท้องถิ่นไทย UTC+7) เป็น ISO RFC3339 UTC สำหรับ Google Blogger"""
     dt = parse_datetime(dt_val)

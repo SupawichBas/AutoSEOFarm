@@ -19,5 +19,7 @@
   "github_pages_url": "https://supawichbas.github.io/ShopeeAutoSEOFarm",
   "primary_platform": "blogger",
   "enable_blogger_api": false,
-  "auto_git_push": true
+  "auto_git_push": true,
+  "shopee_affiliate_id": "15316300462",
+  "shopee_sub_id": "tautoguide"
 }
