@@ -12,7 +12,7 @@ if sys.platform == "win32":
 
 from site_builder import update_website, load_site_articles
 from blogger_exporter import export_to_blogger_format
-from scheduler_helper import format_thai_date, to_iso_local, format_price
+from scheduler_helper import format_thai_date, to_iso_local, format_price, get_next_schedule_slots
 
 QUEUE_FILE = "article_queue.json"
 DATA_FILE = os.path.join("docs", "data", "articles.json")
@@ -40,9 +40,9 @@ def save_json(filepath, data):
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-def release_drip(count=1):
+def release_drip(count=1, days_ahead=3):
     print("=" * 60)
-    print(f"💧 ปล่อยบทความทีละนิด (Drip Release): จำนวน {count} บทความ")
+    print(f"💧 ปล่อยบทความทีละนิด (Drip Release): จำนวน {count} บทความ (ตั้งเวลาล่วงหน้า {days_ahead} วัน)")
     print("=" * 60)
 
     queue = load_json(QUEUE_FILE, [])
@@ -57,11 +57,13 @@ def release_drip(count=1):
     now = datetime.datetime.now()
     release_count = min(count, len(queue))
 
+    # เริ่มต้นตารางเวลาล่วงหน้าตามวันที่ผู้ใช้ระบุ (เช่น เผื่อไว้ 3 วัน)
+    start_time = now + datetime.timedelta(days=days_ahead)
+    slots = get_next_schedule_slots(count=release_count, start_after=start_time)
+
     for i in range(release_count):
         art = queue.pop(0)
-        # หากปล่อยหลายบทความพร้อมกัน ให้กระจายเวลาย้อนหลังทีละ 2 ชั่วโมงเพื่อให้เป็นธรรมชาติ
-        offset_hours = (release_count - 1 - i) * 2
-        art_time = now - datetime.timedelta(hours=offset_hours)
+        art_time = slots[i]
         
         art["created_at"] = art_time.strftime("%Y-%m-%d %H:%M:%S")
         art["date_iso"] = to_iso_local(art_time)
@@ -102,5 +104,6 @@ def release_drip(count=1):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Drip release articles gradually")
     parser.add_argument("--count", type=int, default=1, help="จำนวนบทความที่ต้องการปล่อย (ค่าเริ่มต้น 1)")
+    parser.add_argument("--days", type=int, default=3, help="จำนวนวันที่ต้องการตั้งเวลาล่วงหน้าเผื่อไว้ (ค่าเริ่มต้น 3 วัน)")
     args = parser.parse_args()
-    release_drip(args.count)
+    release_drip(args.count, days_ahead=args.days)
