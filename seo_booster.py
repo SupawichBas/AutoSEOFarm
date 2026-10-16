@@ -63,9 +63,9 @@ def generate_rss_feed(articles, config):
 
 
 def generate_deals_hub(articles, config):
-    """สร้างหน้ารวมพิกัดดีลด่วน (docs/deals.html) คลิกเดียวเข้า Shopee ทันที พร้อมช่องค้นหา"""
-    site_url = config.get("site_url", "https://supawichbas.github.io/ShopeeAutoSEOFarm").rstrip("/")
-    site_title = config.get("site_title", "รวมพิกัดสินค้าขายดี Shopee")
+    """สร้างหน้ารวมพิกัดดีลด่วน (docs/index.html และ docs/deals.html) คลิกเดียวเข้า Shopee ทันที พร้อมช่องค้นหา"""
+    site_url = (config.get("github_pages_url") or config.get("site_url") or "https://supawichbas.github.io/ShopeeAutoSEOFarm").rstrip("/")
+    site_title = config.get("site_title", "TechAuto Guide")
 
     cards = []
     for i, art in enumerate(articles):
@@ -105,7 +105,7 @@ def generate_deals_hub(articles, config):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🔥 รวมพิกัดดีลเด็ด & สินค้าขายดี Shopee | {html.escape(site_title)}</title>
   <meta name="description" content="รวมลิงก์พิกัดสินค้าขายดีคัดพิเศษ พร้อมโค้ดส่วนลดและโปรโมชั่น Shopee ล่าสุด กดสั่งซื้อได้ทันที">
-  <link rel="canonical" href="{site_url}/deals.html">
+  <link rel="canonical" href="{site_url}/">
   <link rel="alternate" type="application/rss+xml" title="{html.escape(site_title)} RSS" href="{site_url}/feed.xml">
   <style>
     :root {{
@@ -280,8 +280,13 @@ def generate_deals_hub(articles, config):
   </div>
 
   <div class="nav-bar">
-    <a href="index.html">← กลับหน้าบทความรีวิวทั้งหมด</a>
-    <span>สินค้าทั้งหมด {len(articles)} รายการ</span>
+    <div style="font-weight: 600; color: #475569;">
+      🛍️ คลังสินค้าแนะนำพิเศษ • ค้นหาและช้อปได้ทันที
+    </div>
+    <div style="display: flex; gap: 0.8rem; align-items: center;">
+      <a href="https://tautoguide.blogspot.com" target="_blank" style="background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 บล็อกรีวิวหลัก ↗</a>
+      <span style="font-size: 0.85rem; color: var(--muted);">สินค้า {len(articles)} รายการ</span>
+    </div>
   </div>
 
   <div class="container">
@@ -289,6 +294,10 @@ def generate_deals_hub(articles, config):
       {"".join(cards)}
     </div>
   </div>
+
+  <footer style="text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.88rem; border-top: 1px solid #e2e8f0; margin-top: 2rem;">
+    <p>© {datetime.date.today().year} {html.escape(site_title)} • <a href="feed.xml" style="color: var(--primary); text-decoration: none;">RSS Feed</a> • อัปเดตข้อมูลและราคาล่าสุดอัตโนมัติ</p>
+  </footer>
 
   <script>
     function filterDeals() {{
@@ -303,7 +312,11 @@ def generate_deals_hub(articles, config):
 </body>
 </html>
 """
+    # เขียนทั้ง index.html (เป็นหน้าแรกหลัก) และ deals.html (สำหรับ backward compatibility)
+    index_path = os.path.join(DOCS_DIR, "index.html")
     deals_path = os.path.join(DOCS_DIR, "deals.html")
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(deals_html)
     with open(deals_path, "w", encoding="utf-8") as f:
         f.write(deals_html)
 
@@ -312,7 +325,7 @@ def generate_deals_hub(articles, config):
     with open(key_path, "w", encoding="utf-8") as f:
         f.write(INDEXNOW_KEY)
 
-    return deals_path
+    return index_path
 
 
 def ping_search_engines(articles, config):
