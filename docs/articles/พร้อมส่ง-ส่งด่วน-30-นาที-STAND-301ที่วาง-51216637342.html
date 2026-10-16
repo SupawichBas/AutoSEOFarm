@@ -159,15 +159,41 @@ header {
   display: inline-block;
   background: var(--primary);
   color: white !important;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  padding: 0.65rem 1.25rem;
+  padding: 0.65rem 1rem;
   border-radius: 8px;
   text-align: center;
-  transition: background 0.2s;
-  margin-top: 0.75rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.25);
 }
-.btn:hover { background: var(--primary-hover); }
+.btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  display: inline-block;
+  background: #f8fafc;
+  color: #334155 !important;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.btn-outline:hover {
+  background: #e2e8f0;
+  color: #0f172a !important;
+}
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  align-items: center;
+}
 /* Article Page */
 .article-wrap {
   max-width: 800px;

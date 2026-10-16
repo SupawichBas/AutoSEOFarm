@@ -136,15 +136,41 @@ header {
   display: inline-block;
   background: var(--primary);
   color: white !important;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  padding: 0.65rem 1.25rem;
+  padding: 0.65rem 1rem;
   border-radius: 8px;
   text-align: center;
-  transition: background 0.2s;
-  margin-top: 0.75rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(238, 77, 45, 0.25);
 }
-.btn:hover { background: var(--primary-hover); }
+.btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  display: inline-block;
+  background: #f8fafc;
+  color: #334155 !important;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.btn-outline:hover {
+  background: #e2e8f0;
+  color: #0f172a !important;
+}
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  align-items: center;
+}
 /* Article Page */
 .article-wrap {
   max-width: 800px;
@@ -444,10 +470,13 @@ def build_index_page(articles, config):
     for art in sorted_articles:
         img_src = art.get("image") or "https://via.placeholder.com/400x300?text=Shopee+Review"
         thai_date_card = format_thai_date(art.get('created_at') or art.get('date_iso'), short=True)
+        aff_link = art.get("affiliate_link") or "#"
         card = f"""
       <div class="card">
         <div class="card-img-wrap">
-          <img src="{img_src}" alt="{html.escape(art['product_title'])}" class="card-img" loading="lazy">
+          <a href="{aff_link}" target="_blank" rel="nofollow" title="ดูสินค้าใน Shopee">
+            <img src="{img_src}" alt="{html.escape(art['product_title'])}" class="card-img" loading="lazy">
+          </a>
         </div>
         <div class="card-body">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
@@ -458,7 +487,10 @@ def build_index_page(articles, config):
             <a href="articles/{art['slug']}.html">{html.escape(art['article_title'])}</a>
           </h2>
           <div class="card-price">฿{format_price(art['price'])} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">(ขายแล้ว {art['sold']} ชิ้น)</span></div>
-          <a href="articles/{art['slug']}.html" class="btn">อ่านรีวิวและสั่งซื้อ</a>
+          <div class="card-actions">
+            <a href="articles/{art['slug']}.html" class="btn-outline">📖 รีวิว</a>
+            <a href="{aff_link}" target="_blank" rel="nofollow" class="btn">🛒 ใส่ตะกร้า</a>
+          </div>
         </div>
       </div>
 """
