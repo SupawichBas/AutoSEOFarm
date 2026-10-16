@@ -478,8 +478,9 @@ def build_index_page(articles, config):
   <header>
     <div class="header-container">
       <a href="index.html" class="logo">{html.escape(site_title)}</a>
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <a href="https://tautoguide.blogspot.com" target="_blank" style="font-size: 0.88rem; color: var(--primary); font-weight: 600; text-decoration: none; background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 เข้าชมบล็อกหลัก (tautoguide.blogspot.com) ↗</a>
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <a href="deals.html" style="font-size: 0.88rem; color: #ffffff; font-weight: 700; text-decoration: none; background: var(--primary); padding: 0.35rem 0.8rem; border-radius: 6px;">🔥 คลังพิกัดดีลด่วน</a>
+        <a href="https://tautoguide.blogspot.com" target="_blank" style="font-size: 0.88rem; color: var(--primary); font-weight: 600; text-decoration: none; background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 บล็อกหลัก ↗</a>
       </div>
     </div>
   </header>
@@ -496,7 +497,7 @@ def build_index_page(articles, config):
   </main>
 
   <footer>
-    <p>© {datetime.date.today().year} {html.escape(site_title)} • อัปเดตล่าสุด: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+    <p>© {datetime.date.today().year} {html.escape(site_title)} • <a href="deals.html" style="color: var(--primary);">รวมพิกัดดีลเด็ด</a> • <a href="feed.xml" style="color: var(--text-muted);">RSS Feed</a> • อัปเดตล่าสุด: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
   </footer>
 </body>
 </html>
@@ -517,6 +518,12 @@ def build_sitemap_and_robots(articles, config):
     <lastmod>{now_date}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>""",
+        f"""  <url>
+    <loc>{site_url}/deals.html</loc>
+    <lastmod>{now_date}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>"""
     ]
 
@@ -548,6 +555,7 @@ Sitemap: {site_url}/sitemap.xml
 
 def update_website(new_articles, config):
     """อัปเดตเว็บไซต์ทั้งหมดด้วยบทความชุดใหม่"""
+    from seo_booster import generate_rss_feed, generate_deals_hub, ping_search_engines
     init_dirs()
     existing_articles = load_site_articles()
     
@@ -564,9 +572,13 @@ def update_website(new_articles, config):
     for art in existing_articles:
         build_article_page(art, config)
 
-    # สร้างหน้าแรก และ Sitemap
+    # สร้างหน้าแรก, หน้าคลังพิกัดดีลด่วน, RSS Feed และ Sitemap
     build_index_page(existing_articles, config)
+    generate_deals_hub(existing_articles, config)
+    generate_rss_feed(existing_articles, config)
     build_sitemap_and_robots(existing_articles, config)
 
     print(f"[*] อัปเดตเว็บไซต์ใน '{DOCS_DIR}' สำเร็จ (มีบทความทั้งหมด {len(existing_articles)} ชิ้น)")
+    ping_search_engines(existing_articles, config)
     return len(existing_articles)
+
