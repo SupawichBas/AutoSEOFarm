@@ -40,9 +40,9 @@ def save_json(filepath, data):
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-def release_drip(count=1, days_ahead=3):
+def release_drip(count=10, days_ahead=0, for_today=True):
     print("=" * 60)
-    print(f"💧 ปล่อยบทความทีละนิด (Drip Release): จำนวน {count} บทความ (ตั้งเวลาล่วงหน้า {days_ahead} วัน)")
+    print(f"💧 ปล่อยบทความทีละนิด (Drip Release): จำนวน {count} บทความ (for_today={for_today})")
     print("=" * 60)
 
     queue = load_json(QUEUE_FILE, [])
@@ -57,9 +57,23 @@ def release_drip(count=1, days_ahead=3):
     now = datetime.datetime.now()
     release_count = min(count, len(queue))
 
-    # เริ่มต้นตารางเวลาล่วงหน้าตามวันที่ผู้ใช้ระบุ (เช่น เผื่อไว้ 3 วัน)
-    start_time = now + datetime.timedelta(days=days_ahead)
-    slots = get_next_schedule_slots(count=release_count, start_after=start_time)
+    if for_today:
+        target_date = now.date() + datetime.timedelta(days=days_ahead)
+        from scheduler_helper import PEAK_HOURS
+        # จัดตาราง 10 ช่วงเวลาทองของวันนั้น
+        day_slots = [
+            datetime.datetime(target_date.year, target_date.month, target_date.day, h, m)
+            for h, m in PEAK_HOURS
+        ]
+        # ถ้าจำนวนที่ปล่อยน้อยกว่าหรือเท่ากับจำนวน peak hours ให้ใช้ตามลำดับ
+        slots = day_slots[:release_count]
+        # ถ้าขอยังเหลือให้คำนวณวันถัดไป
+        if len(slots) < release_count:
+            extra = get_next_schedule_slots(count=release_count - len(slots), start_after=slots[-1])
+            slots.extend(extra)
+    else:
+        start_time = now + datetime.timedelta(days=days_ahead)
+        slots = get_next_schedule_slots(count=release_count, start_after=start_time)
 
     for i in range(release_count):
         art = queue.pop(0)
@@ -103,7 +117,9 @@ def release_drip(count=1, days_ahead=3):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Drip release articles gradually")
-    parser.add_argument("--count", type=int, default=1, help="จำนวนบทความที่ต้องการปล่อย (ค่าเริ่มต้น 1)")
-    parser.add_argument("--days", type=int, default=3, help="จำนวนวันที่ต้องการตั้งเวลาล่วงหน้าเผื่อไว้ (ค่าเริ่มต้น 3 วัน)")
+    parser.add_argument("--count", type=int, default=10, help="จำนวนบทความที่ต้องการปล่อย (ค่าเริ่มต้น 10)")
+    parser.add_argument("--days", type=int, default=0, help="จำนวนวันที่ต้องการตั้งเวลาล่วงหน้าเผื่อไว้ (ค่าเริ่มต้น 0 วัน)")
+    parser.add_argument("--today", action="store_true", default=True, help="จัดตารางเวลา 10 สล็อตของวันปัจจุบัน")
     args = parser.parse_args()
-    release_drip(args.count, days_ahead=args.days)
+    release_drip(args.count, days_ahead=args.days, for_today=args.today)
+

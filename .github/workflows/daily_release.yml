@@ -1,0 +1,47 @@
+name: Daily Auto Release SEO Articles
+
+on:
+  schedule:
+    # รันทุกวันเวลา 01:00 UTC (เท่ากับ 08:00 น. เวลาไทย)
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    # ให้กดสั่งรันเองจากหน้า GitHub Actions ได้ตลอดเวลาเมื่อต้องการ
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Release 10 Articles & Auto-Build SEO
+        run: |
+          python release_drip.py --count 10 --today
+
+      - name: Sync Release to Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git status
+          if [ -n "$(git status --porcelain)" ]; then
+            git add docs/ article_queue.json blogger_posts/
+            git commit -m "Auto Drip Release: 10 articles [skip ci]"
+            git push origin main
+          else
+            echo "No changes to commit or queue is empty."
+          fi
