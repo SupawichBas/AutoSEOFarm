@@ -11,7 +11,7 @@ INDEXNOW_KEY = "a8f9d2e1b4c7490192837465543210ab"
 
 def generate_rss_feed(articles, config):
     """สร้างไฟล์ RSS 2.0 (docs/feed.xml) สำหรับระบบกระจายบทความอัตโนมัติ (Syndication/IFTTT/Pinterest/Feed Readers)"""
-    site_url = config.get("site_url", "https://supawichbas.github.io/ShopeeAutoSEOFarm").rstrip("/")
+    site_url = config.get("site_url", "https://supawichbas.github.io/AutoSEOFarm").rstrip("/")
     site_title = config.get("site_title", "รีวิวสินค้าขายดี ตัวช่วยเลือกซื้อสุดคุ้ม")
     site_desc = config.get("site_description", "รวมบทความรีวิวสินค้าคุณภาพ คัดสรรเฉพาะตัวท็อป ยอดขายปัง พร้อมเปรียบเทียบสเปกและโปรโมชั่นล่าสุด")
     now_rfc822 = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
@@ -64,7 +64,7 @@ def generate_rss_feed(articles, config):
 
 def generate_deals_hub(articles, config):
     """สร้างหน้ารวมพิกัดดีลด่วน (docs/index.html และ docs/deals.html) คลิกเดียวเข้า Shopee ทันที พร้อมช่องค้นหา"""
-    site_url = (config.get("github_pages_url") or config.get("site_url") or "https://supawichbas.github.io/ShopeeAutoSEOFarm").rstrip("/")
+    site_url = (config.get("github_pages_url") or config.get("site_url") or "https://supawichbas.github.io/AutoSEOFarm").rstrip("/")
     site_title = config.get("site_title", "TechAuto Guide")
 
     cards = []
@@ -284,7 +284,6 @@ def generate_deals_hub(articles, config):
       🛍️ คลังสินค้าแนะนำพิเศษ • ค้นหาและช้อปได้ทันที
     </div>
     <div style="display: flex; gap: 0.8rem; align-items: center;">
-      <a href="https://tautoguide.blogspot.com" target="_blank" style="background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 บล็อกรีวิวหลัก ↗</a>
       <span style="font-size: 0.85rem; color: var(--muted);">สินค้า {len(articles)} รายการ</span>
     </div>
   </div>
@@ -330,7 +329,7 @@ def generate_deals_hub(articles, config):
 
 def ping_search_engines(articles, config):
     """ส่งสัญญาณ Ping แจ้ง Search Engines & IndexNow อัตโนมัติโดยไม่ต้องทำมือ"""
-    site_url = config.get("site_url", "https://supawichbas.github.io/ShopeeAutoSEOFarm").rstrip("/")
+    site_url = config.get("site_url", "https://supawichbas.github.io/AutoSEOFarm").rstrip("/")
     parsed = urllib.parse.urlparse(site_url)
     host = parsed.netloc
 

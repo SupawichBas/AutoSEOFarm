@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Shopee Affiliate & Blogger Queue Dashboard</title>
+  <style>
+    :root {
+      --primary: #ee4d2d;
+      --primary-hover: #d73211;
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --panel-border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: #090d16;
+      border-bottom: 1px solid var(--panel-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: white;
+    }
+    .brand span.tag {
+      background: var(--primary);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--green);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .container {
+      max-width: 1320px;
+      margin: 1.8rem auto;
+      padding: 0 1.5rem;
+    }
+    .quick-converter {
+      background: linear-gradient(135deg, rgba(238, 77, 45, 0.16) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    }
+    .quick-converter h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .quick-converter p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .result-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #090d16;
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      display: none;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .stat-label { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+    .stat-val { font-size: 2.1rem; font-weight: 800; }
+    .stat-sub { font-size: 0.78rem; color: var(--muted); }
+    .tabs {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 0.75rem;
+    }
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--panel-border);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.85rem 0.75rem;
+      border-bottom: 1px solid var(--panel-border);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-published { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-sm-outline {
+      background: transparent;
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      text-decoration: none;
+    }
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    input, select {
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      color: white;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #0f172a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      🚀 Shopee Affiliate Queue Manager
+      <span class="tag">.NET + Angular + PostgreSQL</span>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <a href="https://supawichbas.github.io/AutoSEOFarm/" target="_blank" class="btn-sm-outline">🛍️ เปิดหน้าร้าน Shopee Deals ↗</a>
+      <div class="status-pill" id="apiStatus">● เชื่อมต่อฐานข้อมูล PostgreSQL สำเร็จ</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Save Shopee Link & Convert to Affiliate Link -->
+    <div class="quick-converter">
+      <h2>📌 วางลิ้งก์สินค้าเพื่อจำไว้ & แปลงเป็นลิ้งก์ของคุณ (15316300462)</h2>
+      <p>วางลิ้งก์ Shopee ที่คุณต้องการเก็บไว้ ระบบจะจำลิ้งก์ไว้ในฐานข้อมูลเพื่อรอรันสคริปต์ทีหลัง และแปลงเป็นลิ้งก์ Affiliate ของคุณให้ก๊อปปี้ไปใช้ได้ทันที (ไม่สร้างบทความเอง)</p>
+      <div class="form-row">
+        <input type="text" id="rawShopeeUrl" placeholder="🔗 วางลิ้งก์สินค้า Shopee ที่นี่..." style="flex: 2; min-width: 300px;">
+        <input type="text" id="customNote" placeholder="📝 โน้ตกันลืม / ชื่อสินค้า (เว้นว่างได้)" style="flex: 1; min-width: 200px;">
+        <button class="btn" onclick="saveShopeeLink()">📌 จำลิ้งก์นี้ไว้ + แปลงเป็นลิ้งก์ของฉัน</button>
+      </div>
+
+      <div id="quickResultBox" class="result-box">
+        <div style="font-weight: 700; color: var(--green); margin-bottom: 0.5rem;">✅ บันทึกลิ้งก์เรียบร้อย! ก๊อปปี้ลิ้งก์ของคุณด้านล่างไปใช้ได้เลย:</div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <input type="text" id="resAffLink" readonly style="flex: 1; color: #38bdf8; font-weight: 600;">
+          <button class="btn" onclick="copyText(document.getElementById('resAffLink').value)">📋 คัดลอกลิ้งก์ของฉัน</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">📌 ลิ้งก์ที่จำไว้ (Saved Links)</span>
+        <div class="stat-val" style="color: #38bdf8;" id="statSavedLinks">-</div>
+        <span class="stat-sub">รอรันสคริปต์ทีหลัง</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">✅ ออนไลน์แล้ว (Published)</span>
+        <div class="stat-val" style="color: var(--green);" id="statPublished">-</div>
+        <span class="stat-sub">แสดงผลบนหน้าเว็บและ Sitemap</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">⏳ คิวบทความเดิม (Pending Queue)</span>
+        <div class="stat-val" style="color: var(--amber);" id="statPending">-</div>
+        <span class="stat-sub">คิวปล่อยรายวันจาก Feed</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">🔑 คีย์เวิร์ดที่ทำงานอยู่ (Keywords)</span>
+        <div class="stat-val" style="color: var(--blue);" id="statKeywords">-</div>
+        <span class="stat-sub">หมวดหมู่สินค้าเป้าหมาย</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('saved', this)">📌 ลิ้งก์ที่ฉันใส่ไว้ (Saved Links)</button>
+      <button class="tab-btn" onclick="switchTab('queue', this)">📋 คิวบทความจาก Feed (Publish Queue)</button>
+      <button class="tab-btn" onclick="switchTab('keywords', this)">🔑 จัดการคีย์เวิร์ด (Keywords)</button>
+      <button class="tab-btn" onclick="switchTab('logs', this)">📜 ประวัติการทำงานบอท (Queue Logs)</button>
+    </div>
+
+    <!-- Tab 0: Saved Links -->
+    <div id="tab-saved" class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>📌 รายการลิ้งก์ที่คุณใส่ไว้ (รอรันสคริปต์ทีหลัง)</h2>
+          <p style="font-size: 0.82rem; color: var(--muted);">เก็บเฉพาะลิ้งก์ที่คุณวางไว้ ไม่มีการสร้างบทความมั่วเข้าคิวเอง</p>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่บันทึก</th>
+              <th>ชื่อ / โน้ตจำลิ้งก์</th>
+              <th>ลิ้งก์ต้นฉบับ</th>
+              <th>สถานะ</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="savedLinksBody">
+            <tr><td colspan="5">กำลังโหลดรายการลิ้งก์ที่บันทึกไว้...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 1: Publish Queue -->
+    <div id="tab-queue" class="panel" style="display: none;">
+      <div class="panel-header">
+        <h2>📋 รายการคิวบทความจาก CSV Feed (63 รายการเดิม)</h2>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-sm-outline" onclick="loadQueue('')">ทั้งหมด</button>
+          <button class="btn-sm-outline" onclick="loadQueue('PENDING')">เฉพาะรอคิว (PENDING)</button>
+          <button class="btn-sm-outline" onclick="loadQueue('PUBLISHED')">เฉพาะออนไลน์แล้ว (PUBLISHED)</button>
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>รูป</th>
+              <th>ชื่อบทความ / สินค้า</th>
+              <th>หมวดหมู่</th>
+              <th>ราคา</th>
+              <th>สถานะ</th>
+              <th>เวลาปล่อย (Scheduled)</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 2: Keywords Manager -->
+    <div id="tab-keywords" class="panel" style="display: none;">
+      <div class="panel-header">
+        <h2>🔑 จัดการคีย์เวิร์ดและหมวดหมู่สำหรับดึงสินค้า</h2>
+      </div>
+      <div class="form-row">
+        <input type="text" id="kwInput" placeholder="ชื่อคีย์เวิร์ด เช่น เครื่องฟอกอากาศ, ไมค์ไร้สาย..." style="flex: 1; min-width: 240px;">
+        <input type="text" id="catInput" placeholder="หมวดหมู่ เช่น Home Appliances" value="Home Appliances">
+        <input type="number" id="priceInput" placeholder="ราคาขั้นต่ำ" value="490" style="width: 120px;">
+        <button class="btn" onclick="addKeyword()">+ เพิ่มคีย์เวิร์ด</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>คีย์เวิร์ด</th>
+            <th>หมวดหมู่</th>
+            <th>ราคาขั้นต่ำ (บาท)</th>
+            <th>ยอดขายขั้นต่ำ</th>
+            <th>สถานะ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="keywordsTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Tab 3: Queue Logs -->
+    <div id="tab-logs" class="panel" style="display: none;">
+      <div class="panel-header">
+        <h2>📜 ประวัติการทำงานของบอท (Queue Logs ล่าสุด 50 รายการ)</h2>
+        <button class="btn-sm-outline" onclick="loadLogs()">🔄 รีเฟรช</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>เวลา</th>
+            <th>Worker</th>
+            <th>Action</th>
+            <th>บทความ</th>
+            <th>รายละเอียด</th>
+          </tr>
+        </thead>
+        <tbody id="logsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api';
+
+    async function saveShopeeLink() {
+      const rawUrl = document.getElementById('rawShopeeUrl').value.trim();
+      const note = document.getElementById('customNote').value.trim();
+
+      if (!rawUrl) {
+        alert('กรุณาวางลิ้งก์สินค้า Shopee ก่อนครับ');
+        return;
+      }
+
+      const res = await fetch(`${API}/saved-links`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawUrl, note })
+      });
+
+      const data = await res.json();
+      if (data.affiliate_link) {
+        document.getElementById('quickResultBox').style.display = 'block';
+        document.getElementById('resAffLink').value = data.affiliate_link;
+        document.getElementById('rawShopeeUrl').value = '';
+        document.getElementById('customNote').value = '';
+        await loadStats();
+        await loadSavedLinks();
+      }
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('คัดลอกลิ้งก์ Affiliate ของคุณ (15316300462) เรียบร้อยแล้ว!');
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch(`${API}/stats`);
+        const s = await res.json();
+        document.getElementById('statSavedLinks').textContent = s.saved_links_count;
+        document.getElementById('statPublished').textContent = s.published_count;
+        document.getElementById('statPending').textContent = s.pending_count;
+        document.getElementById('statKeywords').textContent = s.active_keywords;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadSavedLinks() {
+      const res = await fetch(`${API}/saved-links`);
+      const items = await res.json();
+      const tbody = document.getElementById('savedLinksBody');
+      if (!items.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="color: var(--muted);">ยังไม่มีลิ้งก์ที่บันทึกไว้ ลองวางลิ้งก์ด้านบนได้เลยครับ</td></tr>';
+        return;
+      }
+      tbody.innerHTML = items.map(item => `
+        <tr>
+          <td style="font-size: 0.82rem; color: var(--muted);">${new Date(item.created_at).toLocaleString('th-TH')}</td>
+          <td style="font-weight: 600; max-width: 360px;">${item.note || '-'}</td>
+          <td><a href="${item.raw_url}" target="_blank" style="color: #38bdf8; font-size: 0.85rem;">${item.raw_url}</a></td>
+          <td><span class="badge badge-pending">${item.status}</span></td>
+          <td>
+            <div style="display: flex; gap: 0.4rem;">
+              <button class="btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="copyText('${item.affiliate_link}')">📋 คัดลอกลิ้งก์ของฉัน</button>
+              <a href="${item.affiliate_link}" target="_blank" class="btn-sm-outline">🔗 เปิดดู</a>
+              <button class="btn-sm-outline" style="color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="deleteSavedLink('${item.id}')">🗑️ ลบ</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteSavedLink(id) {
+      await fetch(`${API}/saved-links/${id}`, { method: 'DELETE' });
+      await loadStats();
+      await loadSavedLinks();
+    }
+
+    async function loadQueue(status = '') {
+      const url = status ? `${API}/queue?status=${status}` : `${API}/queue`;
+      const res = await fetch(url);
+      const items = await res.json();
+      const tbody = document.getElementById('queueTableBody');
+      tbody.innerHTML = items.map(item => {
+        const isPub = item.status === 'PUBLISHED';
+        const badgeClass = isPub ? 'badge-published' : 'badge-pending';
+        const dt = new Date(item.scheduled_at).toLocaleString('th-TH');
+        return `
+          <tr>
+            <td><img src="${item.image_url}" class="thumb" alt=""></td>
+            <td>
+              <div style="font-weight: 600; max-width: 380px;">${item.article_title}</div>
+              <div style="font-size: 0.78rem; color: var(--muted);">Shopee ID: ${item.platform_item_id} • ขายแล้ว ${item.sold_count} ชิ้น</div>
+            </td>
+            <td>${item.category}</td>
+            <td style="font-weight: 700; color: #ff7337;">฿${Number(item.price).toLocaleString()}</td>
+            <td><span class="badge ${badgeClass}">${item.status}</span></td>
+            <td style="font-size: 0.82rem;">${dt}</td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                <a href="${item.affiliate_link}" target="_blank" class="btn-sm-outline">🛒 ลิ้งก์ของคุณ</a>
+                <button class="btn-sm-outline" style="color: #ef4444; border-color: rgba(239,68,68,0.3);" onclick="deleteQueueItem('${item.id}')" title="ลบรายการนี้">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function deleteQueueItem(id) {
+      await fetch(`${API}/queue/${id}`, { method: 'DELETE' });
+      await loadStats();
+      await loadQueue();
+    }
+
+    async function loadKeywords() {
+      const res = await fetch(`${API}/keywords`);
+      const items = await res.json();
+      document.getElementById('keywordsTableBody').innerHTML = items.map(k => `
+        <tr>
+          <td style="font-weight: 700;">${k.keyword}</td>
+          <td>${k.category}</td>
+          <td>฿${Number(k.min_price).toLocaleString()}</td>
+          <td>${k.min_sold}+ ชิ้น</td>
+          <td><span class="badge badge-published">${k.is_active ? 'ACTIVE' : 'PAUSED'}</span></td>
+          <td><button class="btn-sm-outline" onclick="deleteKeyword('${k.id}')">🗑️ ลบ</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function addKeyword() {
+      const keyword = document.getElementById('kwInput').value.trim();
+      const category = document.getElementById('catInput').value.trim();
+      const minPrice = Number(document.getElementById('priceInput').value || 490);
+      if (!keyword) return;
+      await fetch(`${API}/keywords`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword, category, minPrice, minSold: 5 })
+      });
+      document.getElementById('kwInput').value = '';
+      await loadKeywords();
+      await loadStats();
+    }
+
+    async function deleteKeyword(id) {
+      await fetch(`${API}/keywords/${id}`, { method: 'DELETE' });
+      await loadKeywords();
+      await loadStats();
+    }
+
+    async function loadLogs() {
+      const res = await fetch(`${API}/logs`);
+      const items = await res.json();
+      document.getElementById('logsTableBody').innerHTML = items.map(l => `
+        <tr>
+          <td style="font-size: 0.8rem; color: var(--muted);">${new Date(l.created_at).toLocaleString('th-TH')}</td>
+          <td><code>${l.worker_name}</code></td>
+          <td><span class="badge badge-published">${l.action}</span></td>
+          <td style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.article_title || '-'}</td>
+          <td>${l.message}</td>
+        </tr>
+      `).join('');
+    }
+
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-saved').style.display = tab === 'saved' ? 'block' : 'none';
+      document.getElementById('tab-queue').style.display = tab === 'queue' ? 'block' : 'none';
+      document.getElementById('tab-keywords').style.display = tab === 'keywords' ? 'block' : 'none';
+      document.getElementById('tab-logs').style.display = tab === 'logs' ? 'block' : 'none';
+      if (tab === 'saved') loadSavedLinks();
+      if (tab === 'queue') loadQueue();
+      if (tab === 'keywords') loadKeywords();
+      if (tab === 'logs') loadLogs();
+    }
+
+    loadStats();
+    loadSavedLinks();
+  </script>
+</body>
+</html>

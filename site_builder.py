@@ -524,7 +524,6 @@ def build_index_page(articles, config):
       <a href="index.html" class="logo">{html.escape(site_title)}</a>
       <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
         <a href="deals.html" style="font-size: 0.88rem; color: #ffffff; font-weight: 700; text-decoration: none; background: var(--primary); padding: 0.35rem 0.8rem; border-radius: 6px;">🔥 คลังพิกัดดีลด่วน</a>
-        <a href="https://tautoguide.blogspot.com" target="_blank" style="font-size: 0.88rem; color: var(--primary); font-weight: 600; text-decoration: none; background: #fff1f0; padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid #ffccc7;">🌐 บล็อกหลัก ↗</a>
       </div>
     </div>
   </header>
