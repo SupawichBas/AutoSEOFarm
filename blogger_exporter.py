@@ -14,7 +14,7 @@ if sys.platform == "win32":
 
 BLOGGER_DIR = "blogger_posts"
 
-def export_to_blogger_format(articles):
+def export_to_blogger_format(articles, xml_path=None):
     """บันทึกไฟล์บทความให้อยู่ในฟอร์แมตที่พร้อมนำเข้า Blogger พร้อมฝังเวลาปล่อยบทความ"""
     os.makedirs(BLOGGER_DIR, exist_ok=True)
     exported_files = []
@@ -73,12 +73,12 @@ def export_to_blogger_format(articles):
         exported_files.append((art, blogger_html))
 
     # สร้างไฟล์ blogger_import.xml สำหรับนำเข้าแบบคลิกเดียวผ่านเมนู "นำเข้าเนื้อหา"
-    generate_blogger_xml(exported_files)
+    generate_blogger_xml(exported_files, xml_path)
 
     print(f"[*] บันทึกบทความสำหรับ Blogger ไว้ในโฟลเดอร์ '{BLOGGER_DIR}' เรียบร้อย ({len(exported_files)} ไฟล์)")
     return [f[0] for f in exported_files]
 
-def generate_blogger_xml(articles_with_html):
+def generate_blogger_xml(articles_with_html, output_path=None):
     """สร้างไฟล์ XML มาตรฐาน Blogger Atom สำหรับนำเข้าทั้งหมดในคลิกเดียว"""
     now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     
@@ -123,8 +123,10 @@ def generate_blogger_xml(articles_with_html):
 {"\n".join(entries_xml)}
 </feed>
 """
-    xml_path = os.path.join(BLOGGER_DIR, "blogger_import.xml")
+    xml_path = output_path or os.path.join(BLOGGER_DIR, "blogger_import.xml")
+    os.makedirs(os.path.dirname(xml_path), exist_ok=True)
     with open(xml_path, "w", encoding="utf-8") as f:
         f.write(feed_xml)
-    print(f"[*] สร้างไฟล์นำเข้าบล็อกเกอร์แบบรวม: {xml_path}")
+    print(f"[*] สร้างไฟล์นำเข้าบล็อกเกอร์: {xml_path} ({len(entries_xml)} บทความ)")
+    return xml_path
 
