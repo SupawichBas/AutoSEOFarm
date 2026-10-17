@@ -344,6 +344,17 @@ def build_article_page(art, config):
     # แปลง Markdown เป็น HTML
     body_html = markdown.markdown(art["content_markdown"], extensions=['extra'])
 
+    # รูปสินค้าหลักด้านบนบทความ (แสดงเฉพาะเมื่อเนื้อหายังไม่มีรูปนี้อยู่แล้ว)
+    hero_html = ""
+    if art.get("image") and art["image"] not in body_html:
+        hero_html = (
+            f'<div style="text-align:center;margin-bottom:1.5rem;">'
+            f'<a href="{html.escape(art["affiliate_link"])}" target="_blank" rel="nofollow noopener">'
+            f'<img src="{html.escape(art["image"])}" alt="{html.escape(art["product_title"])}" '
+            f'style="max-width:100%;max-height:420px;width:auto;margin:0 auto;">'
+            f'</a></div>'
+        )
+
     thai_pub_date = format_thai_date(art.get('created_at') or art.get('date_iso'))
     pub_iso = art.get("date_iso") or art.get("created_at")
 
@@ -410,6 +421,7 @@ def build_article_page(art, config):
       </div>
 
       <div class="article-content">
+        {hero_html}
         {body_html}
       </div>
 
