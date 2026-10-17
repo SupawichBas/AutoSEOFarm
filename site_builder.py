@@ -381,6 +381,7 @@ def build_article_page(art, config):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="S5zS5fK-VTOFjP-FkBGa62nQHDRPGVTs-4W4k8UvkzE" />
   <title>{html.escape(art['article_title'])} | {html.escape(site_title)}</title>
   <meta name="description" content="{html.escape(art['summary'])}">
   <link rel="canonical" href="{article_url}">
@@ -513,6 +514,7 @@ def build_index_page(articles, config):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="S5zS5fK-VTOFjP-FkBGa62nQHDRPGVTs-4W4k8UvkzE" />
   <title>{html.escape(site_title)} | รวมรีวิวสินค้าขายดี</title>
   <meta name="description" content="{html.escape(site_desc)}">
   <link rel="canonical" href="{site_url}/">

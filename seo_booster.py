@@ -103,6 +103,7 @@ def generate_deals_hub(articles, config):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="S5zS5fK-VTOFjP-FkBGa62nQHDRPGVTs-4W4k8UvkzE" />
   <title>🔥 รวมพิกัดดีลเด็ด & สินค้าขายดี Shopee | {html.escape(site_title)}</title>
   <meta name="description" content="รวมลิงก์พิกัดสินค้าขายดีคัดพิเศษ พร้อมโค้ดส่วนลดและโปรโมชั่น Shopee ล่าสุด กดสั่งซื้อได้ทันที">
   <link rel="canonical" href="{site_url}/">
