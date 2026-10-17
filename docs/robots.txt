@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://seoguide.vercel.app/sitemap.xml
+Sitemap: https://secguide.vercel.app/sitemap.xml
