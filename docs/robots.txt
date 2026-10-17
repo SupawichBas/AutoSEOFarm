@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://supawichbas.github.io/AutoSEOFarm/sitemap.xml
+Sitemap: https://seoguide.vercel.app/sitemap.xml
